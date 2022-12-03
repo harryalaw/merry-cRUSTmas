@@ -5,13 +5,13 @@ fn main() {
 }
 
 fn do_part1() {
-    println!("Test 1: {}", part1(include_str!("../../test.txt")));
-    println!("Part 1: {}", part1(include_str!("../../input.txt")));
+    println!("Test 1: {}", part1(include_str!("../test.txt")));
+    println!("Part 1: {}", part1(include_str!("../input.txt")));
 }
 
 fn do_part2() {
-    println!("Test 2: {}", part2(include_str!("../../test.txt")));
-    println!("Part 2: {}", part2(include_str!("../../input.txt")));
+    println!("Test 2: {}", part2(include_str!("../test.txt")));
+    println!("Part 2: {}", part2(include_str!("../input.txt")));
 }
 
 fn part1(input: &str) -> i32 {
