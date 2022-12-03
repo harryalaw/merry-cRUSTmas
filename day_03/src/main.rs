@@ -40,14 +40,13 @@ struct Letters {
 
 impl From<&str> for Letters {
     fn from(s: &str) -> Letters {
-        let mut letters: [bool; 52] = [false; 52];
-
-        s.bytes().into_iter().for_each(|letter| {
+        let letters = s.bytes().into_iter().fold([false; 52], |mut acc, letter| {
             if letter > 96 {
-                letters[(letter - 97) as usize] = true
+                acc[(letter - 97) as usize] = true;
             } else {
-                letters[(letter - 65 + 26) as usize] = true
-            };
+                acc[(letter - 65 + 26) as usize] = true;
+            }
+            return acc;
         });
 
         return Letters { letters };
@@ -62,9 +61,7 @@ struct WordPair {
 
 impl From<&str> for WordPair {
     fn from(s: &str) -> Self {
-        let half_length = s.len() / 2;
-        let first_word = &s[0..half_length];
-        let second_word = &s[half_length..];
+        let (first_word, second_word) = s.split_at(s.len() / 2);
 
         let first_letters = Letters::from(first_word);
         let second_letters = Letters::from(second_word);
