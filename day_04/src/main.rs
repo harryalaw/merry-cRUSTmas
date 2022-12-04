@@ -1,3 +1,4 @@
+use std::num::ParseIntError;
 use std::str::FromStr;
 
 fn main() {
@@ -20,48 +21,63 @@ fn do_part2() {
     println!("Part 2: {}", part2(real_input));
 }
 
-#[derive(Debug)]
-struct Pair {
-    first_start: usize,
-    first_end: usize,
-    second_start: usize,
-    second_end: usize,
+struct Tasks {
+    left: Task,
+    right: Task,
 }
 
-impl From<&str> for Pair {
-    fn from(line: &str) -> Self {
-        let parts: Vec<usize> = line
-            .split(|c| c == ',' || c == '-')
-            .map(|c| c.parse::<usize>().unwrap())
-            .collect();
-        return Pair {
-            first_start: parts[0],
-            first_end: parts[1],
-            second_start: parts[2],
-            second_end: parts[3],
-        };
+struct Task {
+    start: usize,
+    end: usize,
+}
+
+impl FromStr for Tasks {
+    type Err = ParseIntError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let (left, right) = s.split_once(',').expect("AOC Format for line");
+        return Ok(Tasks {
+            left: left.parse()?,
+            right: right.parse()?,
+        });
     }
 }
 
-impl Pair {
+impl FromStr for Task {
+    type Err = ParseIntError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let (start, end) = s.split_once('-').expect("AOC Format for range");
+        return Ok(Task {
+            start: start.parse()?,
+            end: end.parse()?,
+        });
+    }
+}
+
+impl Tasks {
     fn contains(&self) -> bool {
-        return self.first_start <= self.second_start && self.second_end <= self.first_end
-            || self.second_start <= self.first_start && self.first_end <= self.second_end;
+        return self.left.start <= self.right.start && self.right.end <= self.left.end
+            || self.right.start <= self.left.start && self.left.end <= self.right.end;
     }
 
     fn disjoint(&self) -> bool {
-        return self.first_end < self.second_start || self.second_end < self.first_start;
+        return self.left.end < self.right.start || self.right.end < self.left.start;
     }
 }
 
 fn part1(input: String) -> usize {
-    return input.lines().map(Pair::from).filter(Pair::contains).count();
+    return input
+        .lines()
+        .map(|line| line.parse::<Tasks>().unwrap())
+        .filter(Tasks::contains)
+        .count();
 }
 
 fn part2(input: String) -> usize {
     return input
         .lines()
-        .map(Pair::from)
-        .filter(|pair| !Pair::disjoint(pair))
+        .map(|line| line.parse::<Tasks>().unwrap())
+        .filter(|pair| !Tasks::disjoint(pair))
         .count();
 }
