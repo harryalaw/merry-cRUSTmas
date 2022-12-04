@@ -69,7 +69,7 @@ impl Tasks {
 fn part1(input: String) -> usize {
     return input
         .lines()
-        .map(|line| line.parse::<Tasks>().unwrap())
+        .flat_map(|line| line.parse::<Tasks>())
         .filter(Tasks::contains)
         .count();
 }
@@ -77,7 +77,7 @@ fn part1(input: String) -> usize {
 fn part2(input: String) -> usize {
     return input
         .lines()
-        .map(|line| line.parse::<Tasks>().unwrap())
+        .flat_map(|line| line.parse::<Tasks>())
         .filter(|pair| !Tasks::disjoint(pair))
         .count();
 }
