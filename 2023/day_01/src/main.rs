@@ -23,20 +23,6 @@ fn part2(input: &str) -> i32 {
         .sum();
 }
 
-enum Direction {
-    FIRST,
-    LAST,
-}
-
-fn find_number(s: &str, direction: Direction) -> char {
-    let numbers: Vec<char> = s.chars().filter(|x| x.is_numeric()).collect();
-
-    match direction {
-        Direction::FIRST => *numbers.first().expect("We should have numbers"),
-        Direction::LAST => *numbers.last().expect("We should have numbers"),
-    }
-}
-
 struct Digits {
     value: i32,
 }
@@ -45,40 +31,41 @@ struct Words {
     value: i32,
 }
 
+const NUMBERS: &'static [&'static str] = &["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+
+const WORDS: &'static [&'static str] = &[
+    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "1", "2", "3", "4",
+    "5", "6", "7", "8", "9",
+];
+
 impl FromStr for Digits {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Digits, Self::Err> {
-        let first_number = find_number(s, Direction::FIRST);
-        let last_number = find_number(s, Direction::LAST);
-        let value = format!("{}{}", first_number, last_number);
-        return Ok(Digits {
-            value: value.parse::<i32>().expect("Value should be numbers"),
-        });
+        let value = parse_words(s, NUMBERS);
+        return Ok(Digits { value });
     }
 }
 
-fn parse_words(s: &str) -> i32 {
-    let words = [
-        "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "1", "2", "3", "4",
-        "5", "6", "7", "8", "9",
-    ];
+impl FromStr for Words {
+    type Err = ();
+    fn from_str(s: &str) -> Result<Words, Self::Err> {
+        let value = parse_words(s, WORDS);
 
-    let mut first_positions: Vec<(usize, &str)> = words
+        return Ok(Words { value });
+    }
+}
+
+fn parse_words(s: &str, valid_words: &[&'static str]) -> i32 {
+    let mut positions: Vec<(usize, &str)> = valid_words
         .iter()
-        .flat_map(|word| s.match_indices(*word).next())
+        .flat_map(|word| s.match_indices(*word).into_iter())
         .collect();
 
-    first_positions.sort_by(|a, b| a.0.cmp(&b.0));
+    positions.sort_by(|a, b| a.0.cmp(&b.0));
 
-    let mut last_positions: Vec<(usize, &str)> = words
-        .iter()
-        .flat_map(|word| s.rmatch_indices(*word).next())
-        .collect();
-    last_positions.sort_by(|a, b| b.0.cmp(&a.0));
-
-    let first_number = *(first_positions.first().unwrap());
-    let last_number = *(last_positions.first().unwrap());
+    let first_number = *(positions.first().unwrap());
+    let last_number = *(positions.last().unwrap());
 
     format!("{}{}", to_number(first_number.1), to_number(last_number.1))
         .parse::<i32>()
@@ -100,11 +87,30 @@ fn to_number(s: &str) -> i32 {
     }
 }
 
-impl FromStr for Words {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Words, Self::Err> {
-        let value = parse_words(s);
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-        return Ok(Words { value });
+    #[test]
+    fn test_part1() {
+        let input = "1abc2
+pqr3stu8vwx
+a1b2c3d4e5f
+treb7uchet";
+
+        assert_eq!(142, part1(input))
+    }
+
+    #[test]
+    fn test_part2() {
+        let input = "two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen";
+
+        assert_eq!(281, part2(input))
     }
 }
