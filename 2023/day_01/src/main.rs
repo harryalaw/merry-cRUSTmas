@@ -5,8 +5,16 @@ fn main() {
 }
 
 fn do_part1() {
+    use std::time::Instant;
+    let now = Instant::now();
     println!("Part 1: {}", part1(include_str!("../input.txt")));
+    let elapsed = now.elapsed();
+    println!("Took: {:.2?}", elapsed);
+
+    let now = Instant::now();
     println!("Part 2: {}", part2(include_str!("../input.txt")));
+    let elapsed = now.elapsed();
+    println!("Took: {:.2?}", elapsed);
 }
 
 fn part1(input: &str) -> i32 {
@@ -75,31 +83,26 @@ impl Numbers<'_> {
 fn parse_words(s: &str, valid_words: &[&'static str]) -> i32 {
     valid_words
         .iter()
-        .flat_map(|word| s.match_indices(*word).into_iter())
+        .flat_map(|word| (s.match_indices(*word).into_iter()))
         .fold(
             Numbers {
                 first: (usize::MAX, ""),
                 last: (0, ""),
             },
-            |acc, x| {
-                match (x.0 < acc.first.0, x.0 < acc.last.0) {
-                    (true, true) => Numbers {
-                        first: x,
-                        last: acc.last,
-                    },
-                    (true, false) => Numbers {
-                        first: x,
-                        last: x,
-                    },
-                    (false, true) => Numbers {
-                        first: acc.first,
-                        last: acc.last,
-                    },
-                    (false, false) => Numbers {
-                        first: acc.first,
-                        last: x,
-                    },
-                }
+            |acc, x| match (x.0 < acc.first.0, x.0 < acc.last.0) {
+                (true, true) => Numbers {
+                    first: x,
+                    last: acc.last,
+                },
+                (true, false) => Numbers { first: x, last: x },
+                (false, true) => Numbers {
+                    first: acc.first,
+                    last: acc.last,
+                },
+                (false, false) => Numbers {
+                    first: acc.first,
+                    last: x,
+                },
             },
         )
         .value()
