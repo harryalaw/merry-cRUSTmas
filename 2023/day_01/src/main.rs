@@ -77,17 +77,12 @@ fn parse_words(s: &str) -> i32 {
         .collect();
     last_positions.sort_by(|a, b| b.0.cmp(&a.0));
 
-    dbg!(s, first_positions.first(), last_positions.first());
     let first_number = *(first_positions.first().unwrap());
     let last_number = *(last_positions.first().unwrap());
 
-    format!(
-        "{}{}",
-        to_number(first_number.1),
-        to_number(last_number.1)
-    )
-    .parse::<i32>()
-    .expect("It's all numbers")
+    format!("{}{}", to_number(first_number.1), to_number(last_number.1))
+        .parse::<i32>()
+        .expect("It's all numbers")
 }
 
 fn to_number(s: &str) -> i32 {
