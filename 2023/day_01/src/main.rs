@@ -56,20 +56,53 @@ impl FromStr for Words {
     }
 }
 
+struct Numbers<'a> {
+    first: (usize, &'a str),
+    last: (usize, &'a str),
+}
+
+impl Numbers<'_> {
+    fn value(&self) -> i32 {
+        let first_number = to_number(self.first.1);
+        let last_number = to_number(self.last.1);
+
+        format!("{}{}", first_number, last_number)
+            .parse::<i32>()
+            .expect("It's all numbers")
+    }
+}
+
 fn parse_words(s: &str, valid_words: &[&'static str]) -> i32 {
-    let mut positions: Vec<(usize, &str)> = valid_words
+    valid_words
         .iter()
         .flat_map(|word| s.match_indices(*word).into_iter())
-        .collect();
-
-    positions.sort_by(|a, b| a.0.cmp(&b.0));
-
-    let first_number = *(positions.first().unwrap());
-    let last_number = *(positions.last().unwrap());
-
-    format!("{}{}", to_number(first_number.1), to_number(last_number.1))
-        .parse::<i32>()
-        .expect("It's all numbers")
+        .fold(
+            Numbers {
+                first: (usize::MAX, ""),
+                last: (0, ""),
+            },
+            |acc, x| {
+                match (x.0 < acc.first.0, x.0 < acc.last.0) {
+                    (true, true) => Numbers {
+                        first: x,
+                        last: acc.last,
+                    },
+                    (true, false) => Numbers {
+                        first: x,
+                        last: x,
+                    },
+                    (false, true) => Numbers {
+                        first: acc.first,
+                        last: acc.last,
+                    },
+                    (false, false) => Numbers {
+                        first: acc.first,
+                        last: x,
+                    },
+                }
+            },
+        )
+        .value()
 }
 
 fn to_number(s: &str) -> i32 {
