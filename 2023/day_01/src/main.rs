@@ -74,9 +74,7 @@ impl Numbers<'_> {
         let first_number = to_number(self.first.1);
         let last_number = to_number(self.last.1);
 
-        format!("{}{}", first_number, last_number)
-            .parse::<i32>()
-            .expect("It's all numbers")
+        first_number * 10 + last_number
     }
 }
 
