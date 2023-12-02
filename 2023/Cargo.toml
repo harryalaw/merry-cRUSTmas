@@ -1,0 +1,13 @@
+[workspace]
+resolver = "2"
+
+members = ["day_*"]
+default-members = ["day_*"]
+
+[workspace.dependencies]
+divan = "0.1.4"
+
+[profile.flamegraph]
+inherits = "release"
+debug = true
+

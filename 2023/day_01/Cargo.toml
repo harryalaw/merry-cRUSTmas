@@ -6,3 +6,10 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+divan = { workspace = true }
+
+[[bench]]
+name = "day_01-bench"
+path = "benches/benchmark.rs"
+harness = false
+
