@@ -1,0 +1,8 @@
+create day:
+    cargo generate --path ./template --name {{day}}
+bench-all:
+    cargo bench -q > benchmarks.txt
+bench day part:
+    cargo bench --bench {{day}} {{part}} >> {{day}}.bench.txt
+flamegraph day part:
+    cargo flamegraph --profile flamegraph --root --package {{day}} --bin {{part}} -o flamegraphs/{{day}}--{{part}}.svg

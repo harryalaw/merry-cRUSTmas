@@ -1,0 +1,15 @@
+[package]
+name = "{{project-name}}"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dev-dependencies]
+divan = { workspace = true }
+
+[[bench]]
+name = "{{project-name}}_bench"
+path = "benches/benchmarks.rs"
+harness = false
+
