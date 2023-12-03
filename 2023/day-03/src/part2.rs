@@ -1,6 +1,7 @@
 use crate::schematic::{Number, Schematic};
 use std::collections::HashMap;
 
+#[tracing::instrument]
 pub fn process(input: &str) -> u32 {
     let schematic = input.parse::<Schematic>().unwrap();
 

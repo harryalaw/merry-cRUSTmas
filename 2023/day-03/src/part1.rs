@@ -1,5 +1,6 @@
 use crate::schematic::{Schematic, Number};
 
+#[tracing::instrument]
 pub fn process(input: &str) -> u32 {
     let schematic = input.parse::<Schematic>().unwrap();
 

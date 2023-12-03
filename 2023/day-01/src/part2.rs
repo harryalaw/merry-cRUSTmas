@@ -1,5 +1,6 @@
 use std::str::FromStr;
 
+#[tracing::instrument]
 pub fn process(input: &str) -> i32 {
     return input
         .lines()

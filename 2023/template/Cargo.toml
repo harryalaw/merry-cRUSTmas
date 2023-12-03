@@ -7,6 +7,7 @@ edition = "2021"
 
 [dev-dependencies]
 divan = { workspace = true }
+tracing = { workspace = true }
 
 [[bench]]
 name = "{{project-name}}-bench"

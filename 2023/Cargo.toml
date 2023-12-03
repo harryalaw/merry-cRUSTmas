@@ -5,9 +5,10 @@ members = ["day-*"]
 default-members = ["day-*"]
 
 [workspace.dependencies]
+tracing = "0.1.40"
 divan = "0.1.4"
 
 [profile.flamegraph]
-inherits = "release"
+inherits = "dev"
 debug = true
 

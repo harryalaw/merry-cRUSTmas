@@ -1,3 +1,4 @@
+#[tracing::instrument]
 pub fn process(_input: &str) -> String {
     todo!("day 01 - part 2");
 }
