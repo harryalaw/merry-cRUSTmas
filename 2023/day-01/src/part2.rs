@@ -1,85 +1,83 @@
-use std::str::FromStr;
-
 #[tracing::instrument]
-pub fn process(input: &str) -> i32 {
-    return input
-        .lines()
-        .map(|line| line.parse::<Words>().unwrap().value)
-        .sum();
+pub fn process(input: &str) -> u32 {
+    return input.lines().map(parse_words).sum();
 }
 
-struct Words {
-    value: i32,
+fn parse_words(line: &str) -> u32 {
+    let first = first_number(line).expect("should be a number");
+
+    let last = last_number(line).unwrap_or(first);
+
+    return first * 10 + last;
 }
 
-const WORDS: &'static [&'static str] = &[
-    "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "1", "2", "3", "4",
-    "5", "6", "7", "8", "9",
-];
+fn first_number(line: &str) -> Option<u32> {
+    for i in 0..line.len() {
+        if let Some(number) = forward_parse(line, i) {
+            return Some(number);
+        }
+    }
+    return None;
+}
 
-impl FromStr for Words {
-    type Err = ();
-    fn from_str(s: &str) -> Result<Words, Self::Err> {
-        let value = parse_words(s, WORDS);
+fn last_number(line: &str) -> Option<u32> {
+    for i in (0..line.len()+1).rev() {
+        if let Some(number) = reverse_parse(line, i) {
+            return Some(number);
+        }
+    }
+    return None;
+}
 
-        return Ok(Words { value });
+fn forward_parse(line: &str, idx: usize) -> Option<u32> {
+    let reduced = &line[idx..];
+
+    if reduced.starts_with("one") {
+        Some(1)
+    } else if reduced.starts_with("two") {
+        Some(2)
+    } else if reduced.starts_with("three") {
+        Some(3)
+    } else if reduced.starts_with("four") {
+        Some(4)
+    } else if reduced.starts_with("five") {
+        Some(5)
+    } else if reduced.starts_with("six") {
+        Some(6)
+    } else if reduced.starts_with("seven") {
+        Some(7)
+    } else if reduced.starts_with("eight") {
+        Some(8)
+    } else if reduced.starts_with("nine") {
+        Some(9)
+    } else {
+        reduced.chars().next().unwrap().to_digit(10)
     }
 }
 
-struct Numbers<'a> {
-    first: (usize, &'a str),
-    last: (usize, &'a str),
-}
+fn reverse_parse(line: &str, idx: usize) -> Option<u32> {
+    let reduced = &line[..idx];
 
-impl Numbers<'_> {
-    fn value(&self) -> i32 {
-        let first_number = to_number(self.first.1);
-        let last_number = to_number(self.last.1);
-
-        first_number * 10 + last_number
-    }
-}
-
-fn parse_words(s: &str, valid_words: &[&'static str]) -> i32 {
-    valid_words
-        .iter()
-        .flat_map(|word| (s.match_indices(*word).into_iter()))
-        .fold(
-            Numbers {
-                first: (usize::MAX, ""),
-                last: (0, ""),
-            },
-            |acc, x| match (x.0 < acc.first.0, x.0 < acc.last.0) {
-                (true, true) => Numbers {
-                    first: x,
-                    last: acc.last,
-                },
-                (true, false) => Numbers { first: x, last: x },
-                (false, true) => Numbers {
-                    first: acc.first,
-                    last: acc.last,
-                },
-                (false, false) => Numbers {
-                    first: acc.first,
-                    last: x,
-                },
-            },
-        )
-        .value()
-}
-
-fn to_number(s: &str) -> i32 {
-    match s {
-        "1" | "one" => 1,
-        "2" | "two" => 2,
-        "3" | "three" => 3,
-        "4" | "four" => 4,
-        "5" | "five" => 5,
-        "6" | "six" => 6,
-        "7" | "seven" => 7,
-        "8" | "eight" => 8,
-        "9" | "nine" => 9,
-        _ => 0,
+    if reduced.ends_with("one") {
+        Some(1)
+    } else if reduced.ends_with("two") {
+        Some(2)
+    } else if reduced.ends_with("three") {
+        Some(3)
+    } else if reduced.ends_with("four") {
+        Some(4)
+    } else if reduced.ends_with("five") {
+        Some(5)
+    } else if reduced.ends_with("six") {
+        Some(6)
+    } else if reduced.ends_with("seven") {
+        Some(7)
+    } else if reduced.ends_with("eight") {
+        Some(8)
+    } else if reduced.ends_with("nine") {
+        Some(9)
+    } else {
+        reduced.chars().last().unwrap().to_digit(10)
     }
 }
 
