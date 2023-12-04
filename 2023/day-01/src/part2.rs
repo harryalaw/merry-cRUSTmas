@@ -8,7 +8,7 @@ fn parse_words(line: &str) -> u32 {
 
     let last = last_number(line).unwrap_or(first);
 
-    return first * 10 + last;
+    first * 10 + last
 }
 
 fn first_number(line: &str) -> Option<u32> {
@@ -17,7 +17,7 @@ fn first_number(line: &str) -> Option<u32> {
             return Some(number);
         }
     }
-    return None;
+    None
 }
 
 fn last_number(line: &str) -> Option<u32> {
@@ -26,7 +26,7 @@ fn last_number(line: &str) -> Option<u32> {
             return Some(number);
         }
     }
-    return None;
+    None
 }
 
 fn forward_parse(line: &str, idx: usize) -> Option<u32> {

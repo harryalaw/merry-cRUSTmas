@@ -13,7 +13,7 @@ pub fn process(input: &str) -> u32 {
         for col in 0..schematic.width {
             if let Some(cell) = schematic.get_cell(row, col) {
                 if cell == '*' {
-                    total = schematic.compute_gear(row, col, &position_map) + total
+                    total += schematic.compute_gear(row, col, &position_map)
                 }
             }
         }
@@ -35,7 +35,7 @@ fn build_map(numbers: &Vec<Number>) -> HashMap<usize, &Number> {
         }
     }
 
-    return out;
+    out
 }
 
 #[cfg(test)]

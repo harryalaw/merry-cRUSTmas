@@ -1,5 +1,8 @@
 use crate::part2::hash_coord;
-use std::{collections::{HashMap, HashSet}, str::FromStr};
+use std::{
+    collections::{HashMap, HashSet},
+    str::FromStr,
+};
 
 #[derive(Debug)]
 pub struct Schematic {
@@ -31,10 +34,10 @@ impl Schematic {
     pub fn get_cell(&self, row_i: usize, col_i: usize) -> Option<char> {
         let row = self.grid.get(row_i)?;
         let col = row.get(col_i)?;
-        return Some(*col);
+        Some(*col)
     }
 
-    fn get_min_max(&self, row: usize, col:usize) -> (usize,usize,usize,usize) {
+    fn get_min_max(&self, row: usize, col: usize) -> (usize, usize, usize, usize) {
         let row_min = if row == 0 { 0 } else { row - 1 };
         let row_max = if row == self.height - 1 {
             self.height
@@ -48,7 +51,7 @@ impl Schematic {
             col + 2
         };
 
-        return (row_min,row_max,col_min,col_max);
+        (row_min, row_max, col_min, col_max)
     }
 
     pub fn neighbours_symbol(&self, row: usize, col: usize) -> bool {
@@ -56,16 +59,14 @@ impl Schematic {
 
         for i in row_min..row_max {
             for j in col_min..col_max {
-                let row_i: usize = i.try_into().unwrap();
-                let row_j: usize = j.try_into().unwrap();
-                let cell = self.grid.get(row_i).unwrap().get(row_j).unwrap();
-                if !(cell.is_digit(10) || *cell == '.') {
+                let cell = self.grid.get(i).unwrap().get(j).unwrap();
+                if !(cell.is_ascii_digit() || *cell == '.') {
                     return true;
                 }
             }
         }
 
-        return false;
+        false
     }
 
     pub fn get_numbers(&self) -> Vec<Number> {
@@ -79,7 +80,7 @@ impl Schematic {
             for j in 0..self.height {
                 let cell = row.get(j).expect("j is in range");
 
-                match cell.is_digit(10) {
+                match cell.is_ascii_digit() {
                     true => {
                         current_number.push(cell.to_digit(10).expect("It's a number"));
                         current_positions.push((i, j));
@@ -104,7 +105,7 @@ impl Schematic {
             }
         }
 
-        return out;
+        out
     }
 
     pub fn compute_gear(
@@ -119,11 +120,9 @@ impl Schematic {
 
         for i in row_min..row_max {
             for j in col_min..col_max {
-                let row_i: usize = i.try_into().unwrap();
-                let col_j: usize = j.try_into().unwrap();
-                if let Some(cell) = self.get_cell(row_i, col_j) {
-                    if cell.is_digit(10) {
-                        if let Some(number) = position_map.get(&hash_coord(row_i, col_j)) {
+                if let Some(cell) = self.get_cell(i, j) {
+                    if cell.is_ascii_digit() {
+                        if let Some(number) = position_map.get(&hash_coord(i, j)) {
                             surrounding_numbers.insert(number);
                         }
                     }

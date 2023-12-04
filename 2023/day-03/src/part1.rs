@@ -8,7 +8,7 @@ pub fn process(input: &str) -> u32 {
 
     numbers
         .iter()
-        .filter(|number| is_part_number(&number, &schematic))
+        .filter(|number| is_part_number(number, &schematic))
         .map(|number| {
             number.value
         })

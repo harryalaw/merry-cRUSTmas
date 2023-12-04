@@ -29,7 +29,7 @@ impl FromStr for Game {
         let parts = s.split_once(": ").expect("It has a colon");
         let game_id = parts
             .0
-            .split_once(" ")
+            .split_once(' ')
             .expect("It has a space")
             .1
             .parse::<usize>()
@@ -43,7 +43,7 @@ impl FromStr for Game {
                 most_red: 0,
             },
             |acc, word| {
-                let (number, color) = word.split_once(" ").expect("Should have a space");
+                let (number, color) = word.split_once(' ').expect("Should have a space");
                 let count = number.parse::<usize>().expect("Should be a number");
                 let mut game = acc;
                 match color {
@@ -58,7 +58,7 @@ impl FromStr for Game {
                     }
                     _ => todo!(),
                 };
-                return game;
+                game
             },
         ))
     }

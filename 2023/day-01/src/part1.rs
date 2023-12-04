@@ -5,9 +5,9 @@ pub fn process(input: &str) -> u32 {
 
 fn parse_words(s: &str) -> u32 {
     let first_idx = s
-        .find(|x: char| x.is_digit(10))
+        .find(|x: char| x.is_ascii_digit())
         .expect("should have one digit");
-    let last_idx = s.rfind(|x: char| x.is_digit(10)).unwrap_or(first_idx);
+    let last_idx = s.rfind(|x: char| x.is_ascii_digit()).unwrap_or(first_idx);
 
     let first_number: u32 = s[first_idx..=first_idx]
         .parse()
