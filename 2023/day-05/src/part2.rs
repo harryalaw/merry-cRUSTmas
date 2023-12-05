@@ -1,4 +1,4 @@
-use std::{collections::HashSet, str::FromStr};
+use std::str::FromStr;
 
 #[tracing::instrument]
 pub fn process(input: &str) -> usize {
@@ -55,16 +55,16 @@ fn apply_mappings(mappings: &Vec<Mapping>, intervals: &[Interval]) -> Vec<Interv
     let mut mapped_intervals = Vec::new();
 
     for mapping in mappings {
-        let mut next_intervals: HashSet<Interval> = HashSet::new();
+        let mut next_intervals: Vec<Interval> = Vec::new();
         for interval in curr_intervals {
             let (intersection, untouched) = interval.overlaps(&mapping.source_interval);
             if let Some(mapped) = intersection {
                 mapped_intervals.push(map_interval(mapped, mapping));
                 untouched.iter().for_each(|leftover| {
-                    next_intervals.insert(leftover.clone());
+                    next_intervals.push(leftover.clone());
                 });
             } else {
-                next_intervals.insert(interval.clone());
+                next_intervals.push(interval.clone());
             }
         }
         curr_intervals = next_intervals.into_iter().collect();
@@ -240,7 +240,7 @@ mod tests {
 
         let disjoint_1 = first.overlaps(&second);
 
-        let expected:Vec<Interval> = vec![Interval::new(3,4)];
+        let expected: Vec<Interval> = vec![Interval::new(3, 4)];
         assert_eq!(Some(Interval::new(2, 3)), disjoint_1.0);
         assert_eq!(expected, disjoint_1.1);
     }
@@ -253,7 +253,7 @@ mod tests {
         let overlap_1 = first.overlaps(&second);
         let overlap_2 = second.overlaps(&first);
 
-        let expected:Vec<Interval> = Vec::new();
+        let expected: Vec<Interval> = Vec::new();
         assert_eq!(overlap_1.0, overlap_2.0);
         assert_eq!(Some(Interval::new(2, 4)), overlap_1.0);
         assert_eq!(expected, overlap_1.1);
