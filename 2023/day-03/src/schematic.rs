@@ -1,8 +1,5 @@
 use crate::part2::hash_coord;
-use std::{
-    collections::{HashMap, HashSet},
-    str::FromStr,
-};
+use std::{collections::HashMap, str::FromStr};
 
 #[derive(Debug)]
 pub struct Schematic {
@@ -114,7 +111,7 @@ impl Schematic {
         col: usize,
         position_map: &HashMap<usize, &Number>,
     ) -> u32 {
-        let mut surrounding_numbers: HashSet<&Number> = HashSet::new();
+        let mut surrounding_numbers: Vec<u32> = Vec::new();
 
         let (row_min, row_max, col_min, col_max) = self.get_min_max(row, col);
 
@@ -123,7 +120,10 @@ impl Schematic {
                 if let Some(cell) = self.get_cell(i, j) {
                     if cell.is_ascii_digit() {
                         if let Some(number) = position_map.get(&hash_coord(i, j)) {
-                            surrounding_numbers.insert(number);
+                            if surrounding_numbers.contains(&number.value) {
+                                continue;
+                            }
+                            surrounding_numbers.push(number.value);
                         }
                     }
                 }
@@ -133,7 +133,6 @@ impl Schematic {
         if surrounding_numbers.len() == 2 {
             return surrounding_numbers
                 .into_iter()
-                .map(|num| num.value)
                 .reduce(|acc, curr| acc * curr)
                 .unwrap();
         }
