@@ -39,9 +39,19 @@ fn apply_mappings(x: usize, mappings: &Vec<Vec<Mapping>>) -> usize {
 
 #[derive(Debug)]
 struct Mapping {
-    dest_start: usize,
     source_start: usize,
-    range: usize,
+    source_end: usize,
+    dest_start: usize,
+}
+
+impl Mapping {
+    fn new(dest_start: usize, source_start: usize, range: usize) -> Mapping {
+        Mapping {
+            dest_start,
+            source_start,
+            source_end: source_start + range,
+        }
+    }
 }
 
 impl FromStr for Mapping {
@@ -60,23 +70,19 @@ impl FromStr for Mapping {
             .parse::<usize>()
             .expect("It's a number");
         let range = numbers
-            .next()
-            .unwrap()
-            .parse::<usize>()
-            .expect("It's a number");
-        Ok(Mapping {
-            dest_start,
-            source_start,
-            range,
-        })
+                .next()
+                .unwrap()
+                .parse::<usize>()
+                .expect("It's a number");
+        Ok(Mapping::new(dest_start, source_start, range))
     }
 }
 
-fn map_number(mappings: &[Mapping], x: usize) -> usize {
-    for mapping in mappings.iter() {
-        if mapping.source_start <= x && x <= mapping.source_start + mapping.range {
-            let offset = x - mapping.source_start;
-            return mapping.dest_start + offset;
+fn map_number(mapping: &[Mapping], x: usize) -> usize {
+    for interval in mapping.iter() {
+        if interval.source_start <= x && x < interval.source_end {
+            let offset = x - interval.source_start;
+            return interval.dest_start + offset;
         }
     }
 
@@ -90,16 +96,8 @@ mod tests {
     #[test]
     fn test_map_number() {
         let mut mappings: Vec<Mapping> = Vec::new();
-        mappings.push(Mapping {
-            dest_start: 50,
-            source_start: 98,
-            range: 2,
-        });
-        mappings.push(Mapping {
-            dest_start: 52,
-            source_start: 50,
-            range: 48,
-        });
+        mappings.push(Mapping::new(50, 98, 2));
+        mappings.push(Mapping::new(52, 50, 48));
 
         assert_eq!(81, map_number(&mappings, 79));
         assert_eq!(14, map_number(&mappings, 14));
