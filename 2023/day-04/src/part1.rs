@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 #[tracing::instrument]
 pub fn process(input: &str) -> usize {
     input.lines().map(parse_card).sum()
@@ -14,17 +12,23 @@ fn parse_card(card: &str) -> usize {
         .0
         .split_ascii_whitespace()
         .flat_map(|x| x.parse::<usize>())
-        .collect::<HashSet<usize>>();
+        .collect::<Vec<usize>>();
     let my_numbers = numbers
         .1
         .split_ascii_whitespace()
         .flat_map(|x| x.parse::<usize>())
-        .collect::<HashSet<usize>>();
+        .collect::<Vec<usize>>();
 
-    winner_numbers
-        .intersection(&my_numbers)
+    intersect(&winner_numbers, &my_numbers)
+        .iter()
         .fold(1, |acc, _curr| acc * 2)
         >> 1
+}
+
+fn intersect(vec1: &[usize], vec2: &[usize]) -> Vec<usize> {
+    vec1.iter()
+        .filter(|x| vec2.contains(x)).copied()
+        .collect()
 }
 
 #[cfg(test)]

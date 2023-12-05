@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 #[tracing::instrument]
 pub fn process(input: &str) -> usize {
@@ -35,14 +35,20 @@ fn parse_card(card: &str) -> usize {
         .0
         .split_ascii_whitespace()
         .flat_map(|x| x.parse::<usize>())
-        .collect::<HashSet<usize>>();
+        .collect::<Vec<usize>>();
     let my_numbers = numbers
         .1
         .split_ascii_whitespace()
         .flat_map(|x| x.parse::<usize>())
-        .collect::<HashSet<usize>>();
+        .collect::<Vec<usize>>();
 
-    winner_numbers.intersection(&my_numbers).count()
+    intersect(&winner_numbers, &my_numbers).len()
+}
+
+fn intersect(vec1: &[usize], vec2: &[usize]) -> Vec<usize> {
+    vec1.iter()
+        .filter(|x| vec2.contains(x)).copied()
+        .collect()
 }
 
 #[cfg(test)]
