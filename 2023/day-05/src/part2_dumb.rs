@@ -5,7 +5,7 @@ pub fn process(input: &str) -> usize {
     let parts = input.split_once("\n\n").expect("Unix endings");
     let seeds = parse_seeds(parts.0);
     dbg!(&seeds);
-    let mappings: Vec<Vec<Mapping>> = parts.1.split("\n\n").map(|map| parse_maps(map)).collect();
+    let mappings: Vec<Vec<Mapping>> = parts.1.split("\n\n").map(parse_maps).collect();
 
     *(apply_mappings(seeds, &mappings)
         .iter()
@@ -14,7 +14,7 @@ pub fn process(input: &str) -> usize {
 }
 
 fn parse_seeds(s: &str) -> Vec<Interval> {
-    let seeds = s.split_once(": ").unwrap().1.split(" ");
+    let seeds = s.split_once(": ").unwrap().1.split(' ');
     let mut starts = Vec::new();
     let mut ranges = Vec::new();
     seeds.enumerate().for_each(|(i, val)| match i % 2 == 0 {
@@ -35,27 +35,25 @@ fn parse_maps(s: &str) -> Vec<Mapping> {
         .collect()
 }
 
-fn apply_mappings(intervals: Vec<Interval>, mappings: &Vec<Vec<Mapping>>) -> Vec<usize> {
+fn apply_mappings(intervals: Vec<Interval>, mappings: &[Vec<Mapping>]) -> Vec<usize> {
     let mut values: Vec<usize> = Vec::new();
     for seed in &intervals {
         for i in seed.values() {
             values.push(i);
         }
     }
-    let mut i = 0;
 
-    for mapping in mappings {
+    for (i, mapping) in mappings.iter().enumerate() {
         // let new_intervals = compute_intervals(mapping, &intervals);
         values = map_ranges(mapping, &values);
         println!("Done mapping {}", i);
         println!("Min so far {}", values.iter().min().unwrap());
-        i += 1;
     }
 
     values
 }
 
-fn map_ranges(mappings: &Vec<Mapping>, values: &Vec<usize>) -> Vec<usize> {
+fn map_ranges(mappings: &[Mapping], values: &Vec<usize>) -> Vec<usize> {
     let mut out = Vec::new();
     for val in values {
         out.push(map_number(mappings, *val));
@@ -73,7 +71,7 @@ struct Interval {
 
 impl Interval {
     fn new(start: usize, end: usize) -> Interval {
-        return Interval { start, end };
+        Interval { start, end }
     }
 
     fn values(&self) -> Vec<usize> {
@@ -83,36 +81,6 @@ impl Interval {
     fn contains(&self, x: usize) -> bool {
         self.start <= x && x < self.end
     }
-
-    fn intersect(&self, other: &Interval) -> Option<Interval> {
-        // if other.start < self.start {
-        //     return other.intersect(self);
-        // }
-
-        // 1: a b c d
-        // 2: a c b d
-        // 3: a c d b
-        // 4: c d a b
-        // 5: c a d b
-        // 6: c a b d
-        if self.end <= other.start || other.end <= self.start {
-            // a b c d
-            // c d a b
-            return None;
-        } else if self.start <= other.start && other.start < self.end && self.end <= other.end {
-            // a c b d
-            return Some(Interval::new(other.start, self.end));
-        } else if self.start <= other.start && other.end <= self.end {
-            // a c d b
-            return Some(Interval::new(other.start, other.end));
-        } else if other.start <= self.start && self.start < other.end && other.end <= self.end {
-            // c a d b
-            return Some(Interval::new(self.start, other.end));
-        } else {
-            // c a b d
-            return Some(Interval::new(self.start, self.end));
-        }
-    }
 }
 
 
@@ -120,7 +88,6 @@ impl Interval {
 struct Mapping {
     dest_start: usize,
     source_start: usize,
-    range: usize,
     source_interval: Interval,
 }
 
@@ -147,13 +114,12 @@ impl FromStr for Mapping {
         Ok(Mapping {
             dest_start,
             source_start,
-            range,
             source_interval: Interval::new(source_start, source_start + range),
         })
     }
 }
 
-fn map_number(mappings: &Vec<Mapping>, x: usize) -> usize {
+fn map_number(mappings: &[Mapping], x: usize) -> usize {
     for mapping in mappings.iter() {
         if mapping.source_interval.contains(x) {
             let offset = x - mapping.source_start;
@@ -161,7 +127,7 @@ fn map_number(mappings: &Vec<Mapping>, x: usize) -> usize {
         }
     }
 
-    return x;
+    x
 }
 
 #[cfg(test)]
@@ -169,57 +135,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_intersections_disjoint() {
-        let first = Interval::new(1, 3);
-        let second = Interval::new(3, 4);
-
-        let disjoint_1 = first.intersect(&second);
-        let disjoint_2 = second.intersect(&first);
-
-        assert_eq!(disjoint_1, disjoint_2);
-        assert_eq!(None, disjoint_1);
-    }
-
-    #[test]
-    fn test_intersections_overlaps() {
-        let first = Interval::new(1, 4);
-        let second = Interval::new(3, 5);
-
-        let overlap_1 = first.intersect(&second).unwrap();
-        // 1 3 4 5
-        let overlap_2 = second.intersect(&first).unwrap();
-
-        let expected = Interval::new(3, 4);
-
-        assert_eq!(expected, overlap_1);
-        assert_eq!(expected, overlap_2);
-    }
-
-    #[test]
-    fn test_intersections_contains() {
-        let first = Interval::new(1, 5);
-        let second = Interval::new(3, 4);
-
-        let contains_1 = first.intersect(&second).unwrap();
-        let contains_2 = second.intersect(&first).unwrap();
-
-        assert_eq!(second, contains_1);
-        assert_eq!(second, contains_2);
-    }
-
-    #[test]
     fn test_map_number() {
         let mut mappings: Vec<Mapping> = Vec::new();
         mappings.push(Mapping {
             dest_start: 50,
             source_start: 98,
-            range: 2,
             source_interval: Interval::new(98, 100),
         });
         mappings.push(Mapping {
             dest_start: 52,
             source_start: 50,
-            range: 48,
             source_interval: Interval::new(50, 98),
         });
 

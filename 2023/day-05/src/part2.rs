@@ -4,7 +4,7 @@ use std::{collections::HashSet, str::FromStr};
 pub fn process(input: &str) -> usize {
     let parts = input.split_once("\n\n").expect("Unix endings");
     let seeds = parse_seeds(parts.0);
-    let mappings: Vec<Vec<Mapping>> = parts.1.split("\n\n").map(|map| parse_maps(map)).collect();
+    let mappings: Vec<Vec<Mapping>> = parts.1.split("\n\n").map(parse_maps).collect();
 
     let final_intervals = compute_final_intervals(seeds, &mappings);
     final_intervals
@@ -15,7 +15,7 @@ pub fn process(input: &str) -> usize {
 }
 
 fn parse_seeds(s: &str) -> Vec<Interval> {
-    let seeds = s.split_once(": ").unwrap().1.split(" ");
+    let seeds = s.split_once(": ").unwrap().1.split(' ');
     let mut starts = Vec::new();
     let mut ranges = Vec::new();
     seeds.enumerate().for_each(|(i, val)| match i % 2 == 0 {
@@ -49,9 +49,9 @@ fn compute_final_intervals(
     new_intervals
 }
 
-fn apply_mappings(mappings: &Vec<Mapping>, intervals: &Vec<Interval>) -> Vec<Interval> {
+fn apply_mappings(mappings: &Vec<Mapping>, intervals: &[Interval]) -> Vec<Interval> {
     // for each mapping we need to get the list of intersections and non intersections
-    let mut curr_intervals = intervals.clone();
+    let mut curr_intervals = intervals.to_owned();
     let mut mapped_intervals = Vec::new();
 
     for mapping in mappings {
@@ -86,28 +86,16 @@ fn map_interval(interval: Interval, mapping: &Mapping) -> Interval {
     Interval::new(new_start, new_end)
 }
 
-#[derive(Eq, PartialEq, Debug, Clone, Hash, PartialOrd)]
+#[derive(Eq, PartialEq, Debug, Clone, Hash)]
 struct Interval {
     start: usize,
     // end is exclusive
     end: usize,
 }
 
-impl Ord for Interval {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        if self.start == other.start {
-            return std::cmp::Ordering::Equal;
-        }
-        match self.start < other.start {
-            true => std::cmp::Ordering::Less,
-            false => std::cmp::Ordering::Greater,
-        }
-    }
-}
-
 impl Interval {
     fn new(start: usize, end: usize) -> Interval {
-        return Interval { start, end };
+        Interval { start, end }
     }
 
     fn intersect(&self, other: &Interval) -> Option<Interval> {
@@ -124,19 +112,19 @@ impl Interval {
         if self.end <= other.start || other.end <= self.start {
             // a b c d
             // c d a b
-            return None;
+            None
         } else if self.start <= other.start && other.start < self.end && self.end <= other.end {
             // a c b d
-            return Some(Interval::new(other.start, self.end));
+            Some(Interval::new(other.start, self.end))
         } else if self.start <= other.start && other.end <= self.end {
             // a c d b
-            return Some(Interval::new(other.start, other.end));
+            Some(Interval::new(other.start, other.end))
         } else if other.start <= self.start && self.start < other.end && other.end <= self.end {
             // c a d b
-            return Some(Interval::new(self.start, other.end));
+            Some(Interval::new(self.start, other.end))
         } else {
             // c a b d
-            return Some(Interval::new(self.start, self.end));
+            Some(Interval::new(self.start, self.end))
         }
     }
 
@@ -149,7 +137,7 @@ impl Interval {
         // 5: c a d b
         // 6: c a b d
 
-        if intersection == None {
+        if intersection.is_none() {
             return (None, vec![self.clone()]);
         }
         // Either we have a b c d -> covered
@@ -177,7 +165,7 @@ impl Interval {
             (false, false) => {}
         }
 
-        return (Some(it), remaining);
+        (Some(it), remaining)
     }
 }
 
@@ -225,56 +213,36 @@ mod tests {
         let first = Interval::new(1, 3);
         let second = Interval::new(3, 4);
 
-        let mut disjoint_1 = first.overlaps(&second);
-        let mut disjoint_2 = second.overlaps(&first);
-
-        let expected = vec![first, second].sort();
-        assert_eq!(disjoint_1.0, disjoint_2.0);
-        assert_eq!(disjoint_1.1.sort(), disjoint_2.1.sort());
+        let disjoint_1 = first.overlaps(&second);
 
         assert_eq!(None, disjoint_1.0);
-        assert_eq!(
-            expected,
-            disjoint_1.1.into_iter().collect::<Vec<Interval>>().sort()
-        );
+        assert_eq!(vec![first], disjoint_1.1);
     }
 
     #[test]
-    fn test_overlaps_intersection() {
+    fn test_overlaps_intersection_first_end() {
         let first = Interval::new(1, 4);
         let second = Interval::new(3, 5);
 
-        let mut disjoint_1 = first.overlaps(&second);
-        let mut disjoint_2 = second.overlaps(&first);
+        let disjoint_1 = first.overlaps(&second);
+        let disjoint_2 = second.overlaps(&first);
 
-        let expected = vec![Interval::new(1, 3), Interval::new(4, 5)].sort();
+        let expected = vec![Interval::new(1, 3)];
         assert_eq!(disjoint_1.0, disjoint_2.0);
-        assert_eq!(disjoint_1.1.sort(), disjoint_2.1.sort());
-
         assert_eq!(Some(Interval::new(3, 4)), disjoint_1.0);
-        assert_eq!(
-            expected,
-            disjoint_1.1.into_iter().collect::<Vec<Interval>>().sort()
-        );
+        assert_eq!(expected, disjoint_1.1);
     }
 
     #[test]
-    fn test_overlaps_intersection_same_end() {
-        let first = Interval::new(1, 4);
-        let second = Interval::new(3, 4);
+    fn test_overlaps_intersection_last() {
+        let first = Interval::new(2, 4);
+        let second = Interval::new(1, 3);
 
-        let mut disjoint_1 = first.overlaps(&second);
-        let mut disjoint_2 = second.overlaps(&first);
+        let disjoint_1 = first.overlaps(&second);
 
-        let expected = vec![Interval::new(1, 3)].sort();
-        assert_eq!(disjoint_1.0, disjoint_2.0);
-        assert_eq!(disjoint_1.1.sort(), disjoint_2.1.sort());
-
-        assert_eq!(Some(Interval::new(3, 4)), disjoint_1.0);
-        assert_eq!(
-            expected,
-            disjoint_1.1.into_iter().collect::<Vec<Interval>>().sort()
-        );
+        let expected:Vec<Interval> = vec![Interval::new(3,4)];
+        assert_eq!(Some(Interval::new(2, 3)), disjoint_1.0);
+        assert_eq!(expected, disjoint_1.1);
     }
 
     #[test]
@@ -282,15 +250,13 @@ mod tests {
         let first = Interval::new(2, 4);
         let second = Interval::new(1, 5);
 
-        let mut overlap_1 = first.overlaps(&second);
-        let mut overlap_2 = second.overlaps(&first);
+        let overlap_1 = first.overlaps(&second);
+        let overlap_2 = second.overlaps(&first);
 
-        let expected = vec![Interval::new(1, 2), Interval::new(4, 5)].sort();
+        let expected:Vec<Interval> = Vec::new();
         assert_eq!(overlap_1.0, overlap_2.0);
-        assert_eq!(overlap_1.1.sort(), overlap_2.1.sort());
-
         assert_eq!(Some(Interval::new(2, 4)), overlap_1.0);
-        assert_eq!(expected, overlap_1.1.sort());
+        assert_eq!(expected, overlap_1.1);
     }
 
     #[test]

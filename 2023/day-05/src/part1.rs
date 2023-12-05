@@ -4,13 +4,10 @@ use std::str::FromStr;
 pub fn process(input: &str) -> usize {
     let parts = input.split_once("\n\n").expect("Unix endings");
     let seeds = parse_seeds(parts.0);
-    let mappings: Vec<Vec<Mapping>>= parts
-        .1
-        .split("\n\n")
-        .map(|map| parse_maps(map))
-        .collect();
+    let mappings: Vec<Vec<Mapping>> = parts.1.split("\n\n").map(parse_maps).collect();
 
-    seeds.iter()
+    seeds
+        .iter()
         .map(|seed| apply_mappings(*seed, &mappings))
         .min()
         .expect("Should be a min value")
@@ -32,13 +29,12 @@ fn parse_maps(s: &str) -> Vec<Mapping> {
         .collect()
 }
 
-fn apply_mappings(x : usize, mappings: &Vec<Vec<Mapping>>) -> usize {
+fn apply_mappings(x: usize, mappings: &Vec<Vec<Mapping>>) -> usize {
     let mut val = x;
     for mapping in mappings {
         val = map_number(mapping, val);
     }
     val
-
 }
 
 #[derive(Debug)]
@@ -76,7 +72,7 @@ impl FromStr for Mapping {
     }
 }
 
-fn map_number(mappings: &Vec<Mapping>, x: usize) -> usize {
+fn map_number(mappings: &[Mapping], x: usize) -> usize {
     for mapping in mappings.iter() {
         if mapping.source_start <= x && x <= mapping.source_start + mapping.range {
             let offset = x - mapping.source_start;
@@ -84,7 +80,7 @@ fn map_number(mappings: &Vec<Mapping>, x: usize) -> usize {
         }
     }
 
-    return x;
+    x
 }
 
 #[cfg(test)]
