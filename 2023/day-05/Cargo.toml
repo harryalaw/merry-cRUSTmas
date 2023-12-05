@@ -15,3 +15,13 @@ name = "day-05-bench"
 path = "benches/benchmark.rs"
 harness = false
 
+[lib]
+bench = false
+
+[[bin]]
+name = "part1"
+bench = false
+
+[[bin]]
+name = "part2"
+bench = false
