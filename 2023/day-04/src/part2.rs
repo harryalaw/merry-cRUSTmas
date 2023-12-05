@@ -33,12 +33,12 @@ fn parse_card(card: &str) -> usize {
 
     let winner_numbers = numbers
         .0
-        .split(' ')
+        .split_ascii_whitespace()
         .flat_map(|x| x.parse::<usize>())
         .collect::<HashSet<usize>>();
     let my_numbers = numbers
         .1
-        .split(' ')
+        .split_ascii_whitespace()
         .flat_map(|x| x.parse::<usize>())
         .collect::<HashSet<usize>>();
 
