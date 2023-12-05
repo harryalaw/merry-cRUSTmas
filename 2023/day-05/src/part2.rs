@@ -99,19 +99,9 @@ impl Interval {
     }
 
     fn intersect(&self, other: &Interval) -> Option<Interval> {
-        // if other.start < self.start {
-        //     return other.intersect(self);
-        // }
-
-        // 1: a b c d
-        // 2: a c b d
-        // 3: a c d b
-        // 4: c d a b
-        // 5: c a d b
-        // 6: c a b d
+        // a b c d
+        // c d a b
         if self.end <= other.start || other.end <= self.start {
-            // a b c d
-            // c d a b
             None
         } else if self.start <= other.start && other.start < self.end && self.end <= other.end {
             // a c b d
@@ -130,27 +120,18 @@ impl Interval {
 
     fn overlaps(&self, other: &Interval) -> (Option<Interval>, Vec<Interval>) {
         let intersection = self.intersect(other);
-        // 1: a b c d
-        // 4: c d a b
-        // 2: a c b d
-        // 3: a c d b
-        // 5: c a d b
-        // 6: c a b d
 
         if intersection.is_none() {
             return (None, vec![self.clone()]);
         }
-        // Either we have a b c d -> covered
-        // self = [A, B)
-        // intersectin = [C, D)
         let it = intersection.unwrap();
-        // we know that intersection is contained in self
-        //
-        // What we want to get is whether self is before it at all
-        // or if it is after
-        // and from the end of the it to the end of other.
-        // this is assuming that self < other
+
         let mut remaining = Vec::new();
+
+        // 3: a c d b => [a,c), [b,d)
+        // 2: a c b d => [a,c)
+        // 5: c a d b => [d,b)
+        // 6: c a b d =>
         match (self.start < it.start, it.end < self.end) {
             (true, true) => {
                 remaining.push(Interval::new(self.start, it.start));
