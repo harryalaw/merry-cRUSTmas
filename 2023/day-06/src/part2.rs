@@ -6,15 +6,21 @@ pub fn process(input: &str) -> usize {
 }
 
 fn run_race(race: (usize, usize)) -> usize {
-    (0..race.0).fold(0, |total, current_time| {
+    let mut total = 0;
+    for current_time in 0..race.0 {
         let speed = current_time;
         let remaining_time = race.0 - current_time;
-        return if speed * remaining_time > race.1 { total + 1 } else {total }
-    })
+        if speed * remaining_time > race.1 {
+            total += 1;
+        } else if total > 0 {
+            break;
+        }
+    }
+    total
 }
 
 fn parse_races(input: &str) -> (usize, usize) {
-    let lines = input.split_once("\n").expect("Unix endings");
+    let lines = input.split_once('\n').expect("Unix endings");
 
     let time: usize = lines
         .0

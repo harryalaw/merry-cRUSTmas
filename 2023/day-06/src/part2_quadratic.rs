@@ -36,7 +36,7 @@ fn prev_int(num: f64) -> f64 {
 }
 
 fn parse_races(input: &str) -> (f64, f64) {
-    let lines = input.split_once("\n").expect("Unix endings");
+    let lines = input.split_once('\n').expect("Unix endings");
 
     let time: f64 = lines
         .0

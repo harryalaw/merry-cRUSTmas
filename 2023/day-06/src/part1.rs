@@ -1,22 +1,24 @@
 #[tracing::instrument]
 pub fn process(input: &str) -> usize {
     let races = parse_races(input);
-    
-    races.iter()
-        .map(|race| run_race(*race))
-        .fold(1, |acc, curr| acc * curr)
+
+    races.iter().map(|race| run_race(*race)).product::<usize>()
 }
 
 fn run_race(race: (usize, usize)) -> usize {
     (0..race.0).fold(0, |total, current_time| {
         let speed = current_time;
         let remaining_time = race.0 - current_time;
-        return if speed * remaining_time > race.1 { total + 1 } else {total }
+        if speed * remaining_time > race.1 {
+            total + 1
+        } else {
+            total
+        }
     })
 }
 
 fn parse_races(input: &str) -> Vec<(usize, usize)> {
-    let lines = input.split_once("\n").expect("Unix endings");
+    let lines = input.split_once('\n').expect("Unix endings");
 
     let times: Vec<usize> = lines
         .0
