@@ -25,3 +25,11 @@ bench = false
 [[bin]]
 name = "part2"
 bench = false
+
+[[bin]]
+name = "part1_quadratic"
+bench = false
+
+[[bin]]
+name = "part2_quadratic"
+bench = false
