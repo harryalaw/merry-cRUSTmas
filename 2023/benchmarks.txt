@@ -24,3 +24,7 @@ day_06_bench        fastest       │ slowest       │ median        │ mean  
 ├─ part2            20.36 ms      │ 21.73 ms      │ 20.47 ms      │ 20.53 ms      │ 100     │ 100
 ╰─ part2_quadratic  205.4 ns      │ 400.6 ns      │ 207.9 ns      │ 210 ns        │ 100     │ 3200
 
+day_07_bench  fastest       │ slowest       │ median        │ mean          │ samples │ iters
+├─ part1      156.1 µs      │ 231.5 µs      │ 159.2 µs      │ 162.4 µs      │ 100     │ 100
+╰─ part2      175.3 µs      │ 203.1 µs      │ 175.6 µs      │ 177.7 µs      │ 100     │ 100
+
