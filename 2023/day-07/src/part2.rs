@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 #[tracing::instrument]
 pub fn process(_input: &str) -> usize {
     let mut hands = parse_hands(_input);
@@ -43,66 +41,38 @@ enum HandType {
 
 impl HandType {
     fn new(cards: &[Rank]) -> HandType {
-        let joker_count = cards.iter().filter(|x| **x == Rank::Joker).count();
-        if joker_count == 5 {
-            return HandType::FiveOfAKind;
-        }
+        let mut highest = (Rank::Ace, 0);
+        let mut second_highest = (Rank::Ace, 0);
 
-        let mut rank_to_counts: HashMap<Rank, usize> = HashMap::new();
+        let mut rank_counts: [usize; 13] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         for card in cards {
-            if card == &Rank::Joker {
+            rank_counts[card.index()] += 1;
+        }
+        let joker_counts = rank_counts[Rank::Joker.index()];
+
+        for card in Rank::iterator() {
+            if card == Rank::Joker {
                 continue;
             }
-            let previous = rank_to_counts.get(card).unwrap_or(&0);
-            rank_to_counts.insert(*card, previous + 1);
-        }
-
-        if let Some(highest_value) =
-            rank_to_counts
-                .iter()
-                .fold(None, |best: Option<(&Rank, &usize)>, curr| {
-                    if best.is_none() || curr.1 > best.unwrap().1 {
-                        Some(curr)
-                    } else {
-                        best
-                    }
-                })
-        {
-            rank_to_counts.insert(*highest_value.0, *highest_value.1 + joker_count);
-        };
-
-        let mut counts_to_rank: HashMap<usize, Vec<Rank>> = HashMap::new();
-        for x in rank_to_counts.iter() {
-            let previous = counts_to_rank.get(x.1);
-
-            let mut next = match previous {
-                Some(vec) => vec.clone(),
-                None => Vec::new(),
-            };
-
-            next.push(*x.0);
-            counts_to_rank.insert(*x.1, next);
-        }
-
-        if counts_to_rank.contains_key(&5) {
-            HandType::FiveOfAKind
-        } else if counts_to_rank.contains_key(&4) {
-            HandType::FourOfAKind
-        } else if counts_to_rank.contains_key(&3) {
-            if counts_to_rank.contains_key(&2) {
-                HandType::FullHouse
-            } else {
-                HandType::ThreeOfAKind
+            let value = rank_counts[card.index()];
+            if value > highest.1 {
+                second_highest = highest;
+                highest = (card, value);
+            } else if value > second_highest.1 {
+                second_highest = (card, value);
             }
-        } else if counts_to_rank.contains_key(&2) {
-            let highs = counts_to_rank.get(&2).unwrap();
-            if highs.len() == 2 {
-                HandType::TwoPair
-            } else {
-                HandType::OnePair
-            }
-        } else {
-            HandType::HighCard
+        }
+        highest.1 += joker_counts;
+
+        match (highest.1, second_highest.1) {
+            (5, 0) => HandType::FiveOfAKind,
+            (4, 1) => HandType::FourOfAKind,
+            (3, 2) => HandType::FullHouse,
+            (3, 1) => HandType::ThreeOfAKind,
+            (2, 2) => HandType::TwoPair,
+            (2, 1) => HandType::OnePair,
+            (1, 1) => HandType::HighCard,
+            (_a, _b) => panic!("we didn't think of this one {} {}\n{:?}", _a, _b, &rank_counts),
         }
     }
 }
@@ -153,6 +123,7 @@ impl Rank {
             'A' => Rank::Ace,
             'K' => Rank::King,
             'Q' => Rank::Queen,
+            'J' => Rank::Joker,
             'T' => Rank::Ten,
             '9' => Rank::Nine,
             '8' => Rank::Eight,
@@ -162,9 +133,46 @@ impl Rank {
             '4' => Rank::Four,
             '3' => Rank::Three,
             '2' => Rank::Two,
-            'J' => Rank::Joker,
             _ => panic!("Invalid character"),
         }
+    }
+
+    fn index(&self) -> usize {
+        match self {
+            Rank::Ace => 0,
+            Rank::Two => 1,
+            Rank::Three => 2,
+            Rank::Four => 3,
+            Rank::Five => 4,
+            Rank::Six => 5,
+            Rank::Seven => 6,
+            Rank::Eight => 7,
+            Rank::Nine => 8,
+            Rank::Ten => 9,
+            Rank::Joker => 10,
+            Rank::Queen => 11,
+            Rank::King => 12,
+        }
+    }
+
+    pub fn iterator() -> impl Iterator<Item = Rank> {
+        [
+            Rank::Ace,
+            Rank::Two,
+            Rank::Three,
+            Rank::Four,
+            Rank::Five,
+            Rank::Six,
+            Rank::Seven,
+            Rank::Eight,
+            Rank::Nine,
+            Rank::Ten,
+            Rank::Joker,
+            Rank::Queen,
+            Rank::King,
+        ]
+        .iter()
+        .copied()
     }
 }
 

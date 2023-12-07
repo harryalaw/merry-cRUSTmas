@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 #[tracing::instrument]
 pub fn process(_input: &str) -> usize {
     let mut hands = parse_hands(_input);
@@ -43,43 +41,36 @@ enum HandType {
 
 impl HandType {
     fn new(cards: &[Rank]) -> HandType {
-        let mut rank_to_counts: HashMap<Rank, usize> = HashMap::new();
+        let mut highest = (Rank::Ace, 0);
+        let mut second_highest = (Rank::Ace, 0);
+
+        let mut rank_counts: [usize; 13] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
         for card in cards {
-            let previous = rank_to_counts.get(card).unwrap_or(&0);
-            rank_to_counts.insert(*card, previous + 1);
+            rank_counts[card.index()] += 1;
         }
 
-        let mut counts_to_rank: HashMap<usize, Vec<Rank>> = HashMap::new();
-        for x in rank_to_counts.iter() {
-            let previous = counts_to_rank.get(x.1);
-
-            let mut next = match previous {
-                Some(vec) => vec.clone(),
-                None => Vec::new(),
-            };
-
-            next.push(*x.0);
-            counts_to_rank.insert(*x.1, next);
+        for value in rank_counts {
+            let card = Rank::from_index(value).expect("Card should parse");
+            if value > highest.1 {
+                second_highest = highest;
+                highest = (card, value);
+            } else if value > second_highest.1 {
+                second_highest = (card, value);
+            }
         }
-        if counts_to_rank.contains_key(&5) {
-            HandType::FiveOfAKind
-        } else if counts_to_rank.contains_key(&4) {
-            HandType::FourOfAKind
-        } else if counts_to_rank.contains_key(&3) {
-            if counts_to_rank.contains_key(&2) {
-                HandType::FullHouse
-            } else {
-                HandType::ThreeOfAKind
-            }
-        } else if counts_to_rank.contains_key(&2) {
-            let highs = counts_to_rank.get(&2).unwrap();
-            if highs.len() == 2 {
-                HandType::TwoPair
-            } else {
-                HandType::OnePair
-            }
-        } else {
-            HandType::HighCard
+
+        match (highest.1, second_highest.1) {
+            (5, 0) => HandType::FiveOfAKind,
+            (4, 1) => HandType::FourOfAKind,
+            (3, 2) => HandType::FullHouse,
+            (3, 1) => HandType::ThreeOfAKind,
+            (2, 2) => HandType::TwoPair,
+            (2, 1) => HandType::OnePair,
+            (1, 1) => HandType::HighCard,
+            (_a, _b) => panic!(
+                "we didn't think of this one {} {}\n{:?}",
+                _a, _b, &rank_counts
+            ),
         }
     }
 }
@@ -141,6 +132,43 @@ impl Rank {
             '3' => Rank::Three,
             '2' => Rank::Two,
             _ => panic!("Invalid character"),
+        }
+    }
+
+    fn index(&self) -> usize {
+        match self {
+            Rank::Ace => 0,
+            Rank::Two => 1,
+            Rank::Three => 2,
+            Rank::Four => 3,
+            Rank::Five => 4,
+            Rank::Six => 5,
+            Rank::Seven => 6,
+            Rank::Eight => 7,
+            Rank::Nine => 8,
+            Rank::Ten => 9,
+            Rank::Jack => 10,
+            Rank::Queen => 11,
+            Rank::King => 12,
+        }
+    }
+
+    fn from_index(index: usize) -> Option<Rank> {
+        match index {
+            0 => Some(Rank::Ace),
+            1 => Some(Rank::Two),
+            2 => Some(Rank::Three),
+            3 => Some(Rank::Four),
+            4 => Some(Rank::Five),
+            5 => Some(Rank::Six),
+            6 => Some(Rank::Seven),
+            7 => Some(Rank::Eight),
+            8 => Some(Rank::Nine),
+            9 => Some(Rank::Ten),
+            10 => Some(Rank::Jack),
+            11 => Some(Rank::Queen),
+            12 => Some(Rank::King),
+            _ => None,
         }
     }
 }
