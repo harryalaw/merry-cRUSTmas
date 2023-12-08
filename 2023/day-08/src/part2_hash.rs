@@ -27,7 +27,7 @@ pub fn process(input: &str) -> usize {
             }
             steps
         })
-        .reduce(|| 1, |total, curr| lcm(total, curr))
+        .reduce(|| 1, lcm)
 }
 
 fn lcm(first: usize, second: usize) -> usize {
@@ -49,13 +49,13 @@ fn gcd(first: usize, second: usize) -> usize {
     }
 }
 
-fn parse_input(
-    input: &str,
-) -> (
+type ParseOutput = (
     Vec<Dir>,
     HashMap<Location, (Location, Location)>,
     Vec<Location>,
-) {
+);
+
+fn parse_input(input: &str) -> ParseOutput {
     let parts = input.split_once("\n\n").expect("unix endings");
     let directions = parts.0.chars().map(Dir::new).collect();
 

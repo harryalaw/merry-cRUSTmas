@@ -48,7 +48,13 @@ fn gcd(first: usize, second: usize) -> usize {
     }
 }
 
-fn parse_input(input: &str) -> (Vec<Dir>, HashMap<&str, (&str, &str)>, Vec<&str>) {
+type ParseOutput<'a> = (
+    Vec<Dir>,
+    HashMap<&'a str, (&'a str, &'a str)>,
+    Vec<&'a str>,
+);
+
+fn parse_input(input: &str) -> ParseOutput {
     let parts = input.split_once("\n\n").expect("unix endings");
     let directions = parts.0.chars().map(Dir::new).collect();
 
