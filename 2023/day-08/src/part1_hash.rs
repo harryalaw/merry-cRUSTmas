@@ -7,8 +7,9 @@ pub fn process(input: &str) -> usize {
 
     let mut steps = 0;
     let mut location = Location{a:'A', b:'A', c:'A'};
+    let target = Location{a:'Z', b:'Z', c:'Z'};
 
-    while location.c != 'Z' {
+    while location != target {
         let dir = directions
             .get(steps % directions.len())
             .expect("Should be in the range");

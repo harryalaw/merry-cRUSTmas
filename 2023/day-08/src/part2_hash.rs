@@ -19,11 +19,10 @@ pub fn process(input: &str) -> usize {
                     .expect("Should be in the range");
 
                 let destinations = map.get(&curr_location).expect("Locations should be there");
-                let next_location = match dir {
-                    Dir::L => &destinations.0,
-                    Dir::R => &destinations.1,
+                curr_location = match dir {
+                    Dir::L => destinations.0,
+                    Dir::R => destinations.1,
                 };
-                curr_location = *next_location;
                 steps += 1;
             }
             steps
