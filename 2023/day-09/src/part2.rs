@@ -22,14 +22,8 @@ fn prev_num(nums: &[isize]) -> isize {
 }
 
 fn differences(nums: &[isize]) -> Vec<isize> {
-    let mut prev = nums.first().expect("Has a value");
-    nums.iter()
-        .skip(1)
-        .map(|num| {
-            let new = num - prev;
-            prev = num;
-            new
-        })
+    nums.windows(2)
+        .map(|window| window[1] - window[0])
         .collect()
 }
 
