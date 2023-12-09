@@ -1,4 +1,4 @@
-use day_06::part1_brute::process;
+use day_06::part2_brute::process;
 
 #[tracing::instrument]
 fn main() -> Result<(), ()> {
@@ -7,4 +7,5 @@ fn main() -> Result<(), ()> {
     println!("{}", result);
     Ok(())
 }
+
 

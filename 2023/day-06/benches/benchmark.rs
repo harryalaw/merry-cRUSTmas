@@ -13,8 +13,8 @@ fn part1() {
 }
 
 #[divan::bench]
-fn part1_quadratic() {
-    part1_quadratic::process(divan::black_box(include_str!(
+fn part1_brute() {
+    part1_brute::process(divan::black_box(include_str!(
         "../input.txt",
     )));
 }
@@ -27,8 +27,8 @@ fn part2() {
 }
 
 #[divan::bench]
-fn part2_quadratic() {
-    part2_quadratic::process(divan::black_box(include_str!(
+fn part2_brute() {
+    part2_brute::process(divan::black_box(include_str!(
         "../input.txt",
     )));
 }

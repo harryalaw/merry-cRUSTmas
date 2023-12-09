@@ -27,9 +27,9 @@ name = "part2"
 bench = false
 
 [[bin]]
-name = "part1_quadratic"
+name = "part1_brute"
 bench = false
 
 [[bin]]
-name = "part2_quadratic"
+name = "part2_brute"
 bench = false
