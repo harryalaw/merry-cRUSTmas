@@ -13,8 +13,23 @@ fn part1() {
 }
 
 #[divan::bench]
+fn part1_pascal() {
+    part1_pascal::process(divan::black_box(include_str!(
+        "../input.txt",
+    )));
+}
+
+#[divan::bench]
 fn part2() {
     part2::process(divan::black_box(include_str!(
         "../input.txt",
     )));
 }
+
+#[divan::bench]
+fn part2_pascal() {
+    part2_pascal::process(divan::black_box(include_str!(
+        "../input.txt",
+    )));
+}
+

@@ -5,5 +5,7 @@ fn main() -> Result<(), ()> {
     let file = include_str!("../../input.txt");
     let result = process(file);
     println!("{}", result);
+    let result = day_09::part1_pascal::process(file);
+    println!("{}", result);
     Ok(())
 }
