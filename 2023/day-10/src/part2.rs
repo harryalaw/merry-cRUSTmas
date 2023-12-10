@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 #[tracing::instrument]
 pub fn process(input: &str) -> usize {
     let (start, map) = parse_input(input);
@@ -40,10 +38,8 @@ fn traverse(pipe_grid: &PipeGrid, start: Coord) -> Vec<Vec<bool>> {
         let mut next_coords = Vec::new();
 
         for coord in curr_coords {
-            let nbrs = pipe_grid
-                .pipe_map
-                .get(&coord.hash())
-                .expect("Should be in map");
+            let nbrs = &pipe_grid
+                .grid[coord.row][coord.col];
             for nbr in nbrs {
                 if !visited[nbr.row][nbr.col] {
                     next_coords.push(*nbr);
@@ -61,7 +57,7 @@ fn traverse(pipe_grid: &PipeGrid, start: Coord) -> Vec<Vec<bool>> {
 struct PipeGrid {
     width: usize,
     height: usize,
-    pipe_map: HashMap<usize, Vec<Coord>>,
+    grid: Vec<Vec<Vec<Coord>>>
 }
 
 fn parse_input(input: &str) -> (Coord, PipeGrid) {
@@ -69,7 +65,7 @@ fn parse_input(input: &str) -> (Coord, PipeGrid) {
     let height = input.lines().count();
     let width = input.lines().next().unwrap().len();
 
-    let mut pipe_map = HashMap::new();
+    let mut grid: Vec<Vec<Vec<Coord>>> = vec![vec![vec![]; width]; height];
     input
         .lines()
         .enumerate()
@@ -77,7 +73,6 @@ fn parse_input(input: &str) -> (Coord, PipeGrid) {
         .filter(|(_row, _col, x)| x != &'.')
         .map(|(row, col, x)| (x, Coord::new(row, col)))
         .for_each(|(symbol, coord)| {
-            let hash_value = coord.hash();
             let mut vec = Vec::with_capacity(2);
             let neighbours = match symbol {
                 //is a vertical pipe connecting north and south.
@@ -203,7 +198,7 @@ fn parse_input(input: &str) -> (Coord, PipeGrid) {
                 _ => panic!("Unexpected symbol detected {}", symbol),
             };
 
-            pipe_map.insert(hash_value, neighbours);
+            grid[coord.row][coord.col] = neighbours;
         });
 
     (
@@ -211,7 +206,7 @@ fn parse_input(input: &str) -> (Coord, PipeGrid) {
         PipeGrid {
             width,
             height,
-            pipe_map,
+            grid,
         },
     )
 }
@@ -230,10 +225,6 @@ struct Coord {
 }
 
 impl Coord {
-    fn hash(&self) -> usize {
-        self.row * 10000 + self.col
-    }
-
     fn new(row: usize, col: usize) -> Coord {
         Coord { row, col }
     }
