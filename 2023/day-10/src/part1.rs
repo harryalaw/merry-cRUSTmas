@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 #[tracing::instrument]
 pub fn process(_input: &str) -> usize {
@@ -6,24 +6,26 @@ pub fn process(_input: &str) -> usize {
     traverse(map, start)
 }
 
-fn traverse(map: HashMap<usize, Vec<Coord>>, start: Coord) -> usize {
-    let mut visited = HashSet::<usize>::new();
+fn traverse(pipe_grid: PipeGrid, start: Coord) -> usize {
+    let mut visited = vec![vec![false; pipe_grid.width]; pipe_grid.height];
     let mut distance = 0;
 
     let mut curr_coords = vec![start];
-    visited.insert(start.hash());
+    visited[u_size(start.row)][u_size(start.col)] = true;
 
     while !curr_coords.is_empty() {
         distance += 1;
         let mut next_coords = Vec::new();
 
         for coord in curr_coords {
-
-            let nbrs = map.get(&coord.hash()).expect("Should be in map");
+            let nbrs = pipe_grid
+                .pipe_map
+                .get(&coord.hash())
+                .expect("Should be in map");
             for nbr in nbrs {
-                if !visited.contains(&nbr.hash()) {
+                if !visited[u_size(nbr.row)][u_size(nbr.col)] {
                     next_coords.push(*nbr);
-                    visited.insert(nbr.hash());
+                    visited[u_size(nbr.row)][u_size(nbr.col)] = true;
                 }
             }
         }
@@ -34,7 +36,17 @@ fn traverse(map: HashMap<usize, Vec<Coord>>, start: Coord) -> usize {
     distance - 1
 }
 
-fn parse_input(input: &str) -> (Coord, HashMap<usize, Vec<Coord>>) {
+fn u_size(val: isize) -> usize {
+    val.try_into().unwrap()
+}
+
+struct PipeGrid {
+    width: usize,
+    height: usize,
+    pipe_map: HashMap<usize, Vec<Coord>>,
+}
+
+fn parse_input(input: &str) -> (Coord, PipeGrid) {
     let mut start_pos = Coord { row: 0, col: 0 };
     let height = input.lines().count();
     let width = input.lines().next().unwrap().len();
@@ -55,7 +67,7 @@ fn parse_input(input: &str) -> (Coord, HashMap<usize, Vec<Coord>>) {
         })
         .collect();
 
-    let mut out_map = HashMap::new();
+    let mut pipe_map = HashMap::new();
 
     pipes.iter().for_each(|(symbol, coord)| {
         let hash_value = coord.hash();
@@ -212,10 +224,17 @@ fn parse_input(input: &str) -> (Coord, HashMap<usize, Vec<Coord>>) {
             _ => panic!("Unexpected symbol detected {}", symbol),
         };
 
-        out_map.insert(hash_value, neighbours);
+        pipe_map.insert(hash_value, neighbours);
     });
 
-    (start_pos, out_map)
+    (
+        start_pos,
+        PipeGrid {
+            width,
+            height,
+            pipe_map,
+        },
+    )
 }
 
 #[derive(Debug, Copy, Clone)]
