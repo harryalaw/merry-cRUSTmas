@@ -16,11 +16,12 @@ fn traverse(pipe_grid: PipeGrid, start: Coord) -> usize {
         let mut next_coords = Vec::new();
 
         for coord in curr_coords {
-            let nbrs = &pipe_grid.grid[coord.row][coord.col];
-            for nbr in nbrs {
-                if !visited[nbr.row][nbr.col] {
-                    next_coords.push(*nbr);
-                    visited[nbr.row][nbr.col] = true;
+            if let Some(nbrs) = &pipe_grid.grid[coord.row][coord.col] {
+                for nbr in nbrs {
+                    if !visited[nbr.row][nbr.col] {
+                        next_coords.push(*nbr);
+                        visited[nbr.row][nbr.col] = true;
+                    }
                 }
             }
         }
@@ -34,7 +35,7 @@ fn traverse(pipe_grid: PipeGrid, start: Coord) -> usize {
 struct PipeGrid {
     width: usize,
     height: usize,
-    grid: Vec<Vec<Vec<Coord>>>,
+    grid: Vec<Vec<Option<Vec<Coord>>>>,
 }
 
 fn parse_input(input: &str) -> (Coord, PipeGrid) {
@@ -42,7 +43,7 @@ fn parse_input(input: &str) -> (Coord, PipeGrid) {
     let height = input.lines().count();
     let width = input.lines().next().unwrap().len();
 
-    let mut grid: Vec<Vec<Vec<Coord>>> = vec![vec![vec![]; width]; height];
+    let mut grid: Vec<Vec<Option<Vec<Coord>>>> = vec![vec![None; width]; height];
     input
         .lines()
         .enumerate()
@@ -175,7 +176,7 @@ fn parse_input(input: &str) -> (Coord, PipeGrid) {
                 _ => panic!("Unexpected symbol detected {}", symbol),
             };
 
-            grid[coord.row][coord.col] = neighbours;
+            grid[coord.row][coord.col] = Some(neighbours);
         });
 
     (
