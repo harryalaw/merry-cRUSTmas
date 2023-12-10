@@ -1,8 +1,5 @@
 use rayon::prelude::*;
-use std::{
-    collections::HashMap,
-    hash::{Hash, Hasher},
-};
+use std::{collections::HashMap, hash::Hash};
 
 #[tracing::instrument]
 pub fn process(input: &str) -> usize {
@@ -13,7 +10,7 @@ pub fn process(input: &str) -> usize {
         .map(|location| {
             let mut curr_location = *location;
             let mut steps = 0;
-            while curr_location.c != 'Z' {
+            while curr_location.value & 0xFF != 26 {
                 let dir = directions
                     .get(steps % directions.len())
                     .expect("Should be in the range");
@@ -70,7 +67,7 @@ fn parse_input(input: &str) -> ParseOutput {
 
         outmap.insert(source, (left, right));
 
-        if source.c == 'A' {
+        if source.value & 0xff == 1 {
             initial_locations.push(source);
         }
     });
@@ -78,19 +75,9 @@ fn parse_input(input: &str) -> ParseOutput {
     (directions, outmap, initial_locations)
 }
 
-#[derive(Eq, PartialEq, Clone, Copy)]
+#[derive(Eq, PartialEq, Clone, Copy, Hash)]
 struct Location {
-    a: char,
-    b: char,
-    c: char,
-}
-
-impl Hash for Location {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.a.hash(state);
-        self.b.hash(state);
-        self.c.hash(state);
-    }
+    value: usize,
 }
 
 impl Location {
@@ -98,11 +85,47 @@ impl Location {
         if s.len() != 3 {
             panic!("Should be length 3, {}", s.len());
         }
+        let a = char_to_digit(s.chars().nth(0).expect("Exists"));
+        let b = char_to_digit(s.chars().nth(1).expect("Exists"));
+        let c = char_to_digit(s.chars().nth(2).expect("Exists"));
+
         Location {
-            a: s.chars().nth(0).expect("Exists"),
-            b: s.chars().nth(1).expect("Exists"),
-            c: s.chars().nth(2).expect("Exists"),
+            value: a << 16 | b << 8 | c,
         }
+    }
+}
+
+fn char_to_digit(c: char) -> usize {
+    match c {
+        'A' => 1,
+        'B' => 2,
+        'C' => 3,
+        'D' => 4,
+        'E' => 5,
+        'F' => 6,
+        'G' => 7,
+        'H' => 8,
+        'I' => 9,
+        'J' => 10,
+        'K' => 11,
+        'L' => 12,
+        'M' => 13,
+        'N' => 14,
+        'O' => 15,
+        'P' => 16,
+        'Q' => 17,
+        'R' => 18,
+        'S' => 19,
+        'T' => 20,
+        'U' => 21,
+        'V' => 22,
+        'W' => 23,
+        'X' => 24,
+        'Y' => 25,
+        'Z' => 26,
+        '1' => 27,
+        '2' => 28,
+        _ => 0,
     }
 }
 
