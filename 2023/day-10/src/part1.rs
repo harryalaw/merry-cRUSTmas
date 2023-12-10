@@ -47,145 +47,142 @@ fn parse_input(input: &str) -> (Coord, PipeGrid) {
     let height = input.lines().count();
     let width = input.lines().next().unwrap().len();
 
-    let pipes: Vec<(char, Coord)> = input
+    let mut pipe_map = HashMap::new();
+    input
         .lines()
         .enumerate()
         .flat_map(|(row, x)| x.chars().enumerate().map(move |(col, x)| (row, col, x)))
         .filter(|(_row, _col, x)| x != &'.')
         .map(|(row, col, x)| (x, Coord::new(row, col)))
-        .collect();
+        .for_each(|(symbol, coord)| {
+            let hash_value = coord.hash();
+            let mut vec = Vec::with_capacity(2);
+            let neighbours = match symbol {
+                //is a vertical pipe connecting north and south.
+                '|' => {
+                    if coord.row > 0 {
+                        vec.push(coord.neighbour(Direction::North));
+                    }
+                    if coord.row < height - 1 {
+                        vec.push(coord.neighbour(Direction::South));
+                    }
+                    vec
+                }
+                '-' => {
+                    if coord.col > 0 {
+                        vec.push(coord.neighbour(Direction::West));
+                    }
+                    if coord.col < width - 1 {
+                        vec.push(coord.neighbour(Direction::East));
+                    }
+                    vec
+                }
+                //is a 90-degree bend connecting north and east.
+                'L' => {
+                    if coord.row > 0 {
+                        vec.push(coord.neighbour(Direction::North));
+                    }
+                    if coord.col < width - 1 {
+                        vec.push(coord.neighbour(Direction::East));
+                    }
+                    vec
+                }
+                //is a 90-degree bend connecting north and west.
+                'J' => {
+                    if coord.row > 0 {
+                        vec.push(coord.neighbour(Direction::North));
+                    }
+                    if coord.col > 0 {
+                        vec.push(coord.neighbour(Direction::West));
+                    }
+                    vec
+                }
+                //is a 90-degree bend connecting south and west.
+                '7' => {
+                    if coord.col > 0 {
+                        vec.push(coord.neighbour(Direction::West));
+                    }
+                    if coord.row < height - 1 {
+                        vec.push(coord.neighbour(Direction::South));
+                    }
+                    vec
+                }
+                //is a 90-degree bend connecting south and east.
+                'F' => {
+                    if coord.col < width - 1 {
+                        vec.push(coord.neighbour(Direction::East));
+                    }
+                    if coord.row < height - 1 {
+                        vec.push(coord.neighbour(Direction::South));
+                    }
+                    vec
+                }
+                //is the starting position of the animal;
+                //there is a pipe on this tile, but your sketch doesn't show what shape the pipe has.
+                'S' => {
+                    start_pos = Coord {
+                        row: coord.row,
+                        col: coord.col,
+                    };
+                    if coord.row > 0 {
+                        if let Some(north) = input
+                            .lines()
+                            .nth(coord.row - 1)
+                            .unwrap()
+                            .chars()
+                            .nth(coord.col)
+                        {
+                            if north == '|' || north == 'F' || north == '7' {
+                                vec.push(coord.neighbour(Direction::North));
+                            }
+                        }
+                    }
+                    if coord.row < (height - 1) {
+                        if let Some(south) = input
+                            .lines()
+                            .nth(coord.row + 1)
+                            .unwrap()
+                            .chars()
+                            .nth(coord.col)
+                        {
+                            if south == '|' || south == 'J' || south == 'L' {
+                                vec.push(coord.neighbour(Direction::South));
+                            }
+                        }
+                    }
+                    if coord.col < (width - 1) {
+                        if let Some(east) = input
+                            .lines()
+                            .nth(coord.row)
+                            .unwrap()
+                            .chars()
+                            .nth(coord.col + 1)
+                        {
+                            if east == '-' || east == 'J' || east == '7' {
+                                vec.push(coord.neighbour(Direction::East));
+                            }
+                        }
+                    }
+                    if coord.col > 0 {
+                        if let Some(west) = input
+                            .lines()
+                            .nth(coord.row)
+                            .unwrap()
+                            .chars()
+                            .nth(coord.col - 1)
+                        {
+                            if west == '-' || west == 'L' || west == 'F' {
+                                vec.push(coord.neighbour(Direction::West))
+                            }
+                        }
+                    }
+                    vec
+                }
+                _ => panic!("Unexpected symbol detected {}", symbol),
+            };
 
-    let mut pipe_map = HashMap::new();
-
-    pipes.iter().for_each(|(symbol, coord)| {
-        let hash_value = coord.hash();
-        let mut vec = Vec::with_capacity(2);
-        let neighbours = match *symbol {
-            //is a vertical pipe connecting north and south.
-            '|' => {
-                if coord.row > 0 {
-                    vec.push(coord.neighbour(Direction::North));
-                }
-                if coord.row < height - 1 {
-                    vec.push(coord.neighbour(Direction::South));
-                }
-                vec
-            }
-            '-' => {
-                if coord.col > 0 {
-                    vec.push(coord.neighbour(Direction::West));
-                }
-                if coord.col < width - 1 {
-                    vec.push(coord.neighbour(Direction::East));
-                }
-                vec
-            }
-            //is a 90-degree bend connecting north and east.
-            'L' => {
-                if coord.row > 0 {
-                    vec.push(coord.neighbour(Direction::North));
-                }
-                if coord.col < width - 1 {
-                    vec.push(coord.neighbour(Direction::East));
-                }
-                vec
-            }
-            //is a 90-degree bend connecting north and west.
-            'J' => {
-                if coord.row > 0 {
-                    vec.push(coord.neighbour(Direction::North));
-                }
-                if coord.col > 0 {
-                    vec.push(coord.neighbour(Direction::West));
-                }
-                vec
-            }
-            //is a 90-degree bend connecting south and west.
-            '7' => {
-                if coord.col > 0 {
-                    vec.push(coord.neighbour(Direction::West));
-                }
-                if coord.row < height - 1 {
-                    vec.push(coord.neighbour(Direction::South));
-                }
-                vec
-            }
-            //is a 90-degree bend connecting south and east.
-            'F' => {
-                if coord.col < width - 1 {
-                    vec.push(coord.neighbour(Direction::East));
-                }
-                if coord.row < height - 1 {
-                    vec.push(coord.neighbour(Direction::South));
-                }
-                vec
-            }
-            //is the starting position of the animal;
-            //there is a pipe on this tile, but your sketch doesn't show what shape the pipe has.
-            'S' => {
-                start_pos = Coord {
-                    row: coord.row,
-                    col: coord.col,
-                };
-                if coord.row > 0 {
-                    if let Some(north) = input
-                        .lines()
-                        .nth(coord.row - 1)
-                        .unwrap()
-                        .chars()
-                        .nth(coord.col)
-                    {
-                        if north == '|' || north == 'F' || north == '7' {
-                            vec.push(coord.neighbour(Direction::North));
-                        }
-                    }
-                }
-                if coord.row < (height - 1) {
-                    if let Some(south) = input
-                        .lines()
-                        .nth(coord.row + 1)
-                        .unwrap()
-                        .chars()
-                        .nth(coord.col)
-                    {
-                        if south == '|' || south == 'J' || south == 'L' {
-                            vec.push(coord.neighbour(Direction::South));
-                        }
-                    }
-                }
-                if coord.col < (width - 1) {
-                    if let Some(east) = input
-                        .lines()
-                        .nth(coord.row)
-                        .unwrap()
-                        .chars()
-                        .nth(coord.col + 1)
-                    {
-                        if east == '-' || east == 'J' || east == '7' {
-                            vec.push(coord.neighbour(Direction::East));
-                        }
-                    }
-                }
-                if coord.col > 0 {
-                    if let Some(west) = input
-                        .lines()
-                        .nth(coord.row)
-                        .unwrap()
-                        .chars()
-                        .nth(coord.col - 1)
-                    {
-                        if west == '-' || west == 'L' || west == 'F' {
-                            vec.push(coord.neighbour(Direction::West))
-                        }
-                    }
-                }
-                vec
-            }
-            _ => panic!("Unexpected symbol detected {}", symbol),
-        };
-
-        pipe_map.insert(hash_value, neighbours);
-    });
+            pipe_map.insert(hash_value, neighbours);
+        });
 
     (
         start_pos,
