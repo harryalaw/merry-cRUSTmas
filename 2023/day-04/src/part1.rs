@@ -26,9 +26,7 @@ fn parse_card(card: &str) -> usize {
 }
 
 fn intersect(vec1: &[usize], vec2: &[usize]) -> Vec<usize> {
-    vec1.iter()
-        .filter(|x| vec2.contains(x)).copied()
-        .collect()
+    vec1.iter().filter(|x| vec2.contains(x)).copied().collect()
 }
 
 #[cfg(test)]

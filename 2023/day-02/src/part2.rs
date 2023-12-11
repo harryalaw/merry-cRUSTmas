@@ -69,4 +69,3 @@ Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green";
         assert_eq!(2286, process(input))
     }
 }
-

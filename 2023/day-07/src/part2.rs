@@ -72,7 +72,10 @@ impl HandType {
             (2, 2) => HandType::TwoPair,
             (2, 1) => HandType::OnePair,
             (1, 1) => HandType::HighCard,
-            (_a, _b) => panic!("we didn't think of this one {} {}\n{:?}", _a, _b, &rank_counts),
+            (_a, _b) => panic!(
+                "we didn't think of this one {} {}\n{:?}",
+                _a, _b, &rank_counts
+            ),
         }
     }
 }

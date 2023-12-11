@@ -10,7 +10,11 @@ fn solve(input: &str, scaling_factor: usize) -> usize {
 
     (0..galaxies.len())
         .into_par_iter()
-        .flat_map(|x| ((x + 1)..galaxies.len()).into_par_iter().map(move |y| (x, y)))
+        .flat_map(|x| {
+            ((x + 1)..galaxies.len())
+                .into_par_iter()
+                .map(move |y| (x, y))
+        })
         .fold(
             || 0,
             |acc, (i, j)| {

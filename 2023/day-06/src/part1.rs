@@ -26,7 +26,7 @@ fn run_race(race: (f64, f64)) -> f64 {
 
 fn next_int(num: f64) -> f64 {
     if num.ceil() == num {
-        return num + 1.0
+        return num + 1.0;
     }
     num.ceil()
 }
@@ -35,7 +35,7 @@ fn prev_int(num: f64) -> f64 {
     if num.floor() == num {
         return num - 1.0;
     }
-    num.floor() 
+    num.floor()
 }
 
 fn parse_races(input: &str) -> Vec<(f64, f64)> {

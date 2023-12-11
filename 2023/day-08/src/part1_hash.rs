@@ -6,8 +6,16 @@ pub fn process(input: &str) -> usize {
     let (directions, map) = parse_input(input);
 
     let mut steps = 0;
-    let mut location = Location{a:'A', b:'A', c:'A'};
-    let target = Location{a:'Z', b:'Z', c:'Z'};
+    let mut location = Location {
+        a: 'A',
+        b: 'A',
+        c: 'A',
+    };
+    let target = Location {
+        a: 'Z',
+        b: 'Z',
+        c: 'Z',
+    };
 
     while location != target {
         let dir = directions
@@ -24,12 +32,7 @@ pub fn process(input: &str) -> usize {
     steps
 }
 
-fn parse_input(
-    input: &str,
-) -> (
-    Vec<Dir>,
-    HashMap<Location, (Location, Location)>
-) {
+fn parse_input(input: &str) -> (Vec<Dir>, HashMap<Location, (Location, Location)>) {
     let parts = input.split_once("\n\n").expect("unix endings");
     let directions = parts.0.chars().map(Dir::new).collect();
 

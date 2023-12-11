@@ -33,7 +33,7 @@ fn parse_input(input: &str, scaling_factor: usize) -> (Vec<usize>, Vec<usize>) {
         for col in 0..grid[0].len() {
             if grid[row][col] == '#' {
                 row_empty = false;
-                galaxy_rows.push(row + (scaling_factor - 1) *empty_row_count);
+                galaxy_rows.push(row + (scaling_factor - 1) * empty_row_count);
             }
         }
         if row_empty {
@@ -46,7 +46,7 @@ fn parse_input(input: &str, scaling_factor: usize) -> (Vec<usize>, Vec<usize>) {
         let mut col_empty = true;
         for row in &grid {
             if row[col] == '#' {
-                galaxy_cols.push(col + (scaling_factor - 1) *empty_col_count);
+                galaxy_cols.push(col + (scaling_factor - 1) * empty_col_count);
                 col_empty = false;
             }
         }

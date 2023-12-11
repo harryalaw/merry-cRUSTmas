@@ -9,5 +9,4 @@ fn main() -> Result<(), ()> {
     let result = day_08::part2_hash::process(file);
     println!("{}", result);
     Ok(())
-
 }

@@ -16,7 +16,7 @@ pub fn process(input: &str) -> usize {
             Dir::R => next_locations.1,
             Dir::L => next_locations.0,
         };
-        steps+= 1
+        steps += 1
     }
 
     steps

@@ -1,4 +1,4 @@
-use crate::schematic::{Schematic, Number};
+use crate::schematic::{Number, Schematic};
 
 #[tracing::instrument]
 pub fn process(input: &str) -> u32 {
@@ -9,9 +9,7 @@ pub fn process(input: &str) -> u32 {
     numbers
         .iter()
         .filter(|number| is_part_number(number, &schematic))
-        .map(|number| {
-            number.value
-        })
+        .map(|number| number.value)
         .sum()
 }
 

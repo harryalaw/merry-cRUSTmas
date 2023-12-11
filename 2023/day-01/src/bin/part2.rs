@@ -7,4 +7,3 @@ fn main() -> Result<(), ()> {
     println!("{}", result);
     Ok(())
 }
-

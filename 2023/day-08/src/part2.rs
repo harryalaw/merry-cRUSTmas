@@ -24,10 +24,8 @@ pub fn process(input: &str) -> usize {
         steps_counts.push(steps);
     }
 
-    steps_counts.iter()
-        .fold(1, |total, curr| lcm(total, *curr))
+    steps_counts.iter().fold(1, |total, curr| lcm(total, *curr))
 }
-
 
 fn lcm(first: usize, second: usize) -> usize {
     first * second / gcd(first, second)
@@ -48,11 +46,7 @@ fn gcd(first: usize, second: usize) -> usize {
     }
 }
 
-type ParseOutput<'a> = (
-    Vec<Dir>,
-    HashMap<&'a str, (&'a str, &'a str)>,
-    Vec<&'a str>,
-);
+type ParseOutput<'a> = (Vec<Dir>, HashMap<&'a str, (&'a str, &'a str)>, Vec<&'a str>);
 
 fn parse_input(input: &str) -> ParseOutput {
     let parts = input.split_once("\n\n").expect("unix endings");

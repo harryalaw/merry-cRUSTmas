@@ -21,7 +21,7 @@ fn first_number(line: &str) -> Option<u32> {
 }
 
 fn last_number(line: &str) -> Option<u32> {
-    for i in (0..line.len()+1).rev() {
+    for i in (0..line.len() + 1).rev() {
         if let Some(number) = reverse_parse(line, i) {
             return Some(number);
         }
