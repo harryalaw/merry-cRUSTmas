@@ -61,7 +61,6 @@ fn map_ranges(mappings: &[Mapping], values: &Vec<usize>) -> Vec<usize> {
     out
 }
 
-
 #[derive(Eq, PartialEq, Debug, Clone)]
 struct Interval {
     start: usize,
@@ -82,7 +81,6 @@ impl Interval {
         self.start <= x && x < self.end
     }
 }
-
 
 #[derive(Debug)]
 struct Mapping {

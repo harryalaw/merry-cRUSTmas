@@ -10,7 +10,7 @@ fn distances(coord: &[usize]) -> usize {
     let mut previous = 0;
 
     for (i, value) in coord.iter().enumerate() {
-        total += (i) * value - previous;
+        total += i * value - previous;
         previous += value;
     }
 
@@ -73,4 +73,3 @@ mod tests {
         assert_eq!(374, process(input));
     }
 }
-

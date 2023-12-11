@@ -70,10 +70,10 @@ impl FromStr for Mapping {
             .parse::<usize>()
             .expect("It's a number");
         let range = numbers
-                .next()
-                .unwrap()
-                .parse::<usize>()
-                .expect("It's a number");
+            .next()
+            .unwrap()
+            .parse::<usize>()
+            .expect("It's a number");
         Ok(Mapping::new(dest_start, source_start, range))
     }
 }

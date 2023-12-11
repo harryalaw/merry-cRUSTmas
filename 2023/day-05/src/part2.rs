@@ -1,3 +1,4 @@
+use rayon::prelude::*;
 use std::str::FromStr;
 
 #[tracing::instrument]
@@ -6,9 +7,11 @@ pub fn process(input: &str) -> usize {
     let seeds = parse_seeds(parts.0);
     let mappings: Vec<Vec<Mapping>> = parts.1.split("\n\n").map(parse_maps).collect();
 
-    let final_intervals = compute_final_intervals(seeds, &mappings);
-    final_intervals
-        .iter()
+    let split_seeds: Vec<Vec<Interval>> = seeds.iter().map(|seed| vec![seed.clone()]).collect();
+
+    split_seeds
+        .par_iter()
+        .flat_map(|seed| compute_final_intervals(seed, &mappings))
         .map(|i| i.start)
         .min()
         .expect("It's a number")
@@ -36,11 +39,8 @@ fn parse_maps(s: &str) -> Vec<Mapping> {
         .collect()
 }
 
-fn compute_final_intervals(
-    intervals: Vec<Interval>,
-    mappings: &Vec<Vec<Mapping>>,
-) -> Vec<Interval> {
-    let mut new_intervals = intervals.clone();
+fn compute_final_intervals(intervals: &[Interval], mappings: &Vec<Vec<Mapping>>) -> Vec<Interval> {
+    let mut new_intervals = intervals.to_owned();
 
     for mapping in mappings {
         new_intervals = apply_mappings(mapping, &new_intervals);
