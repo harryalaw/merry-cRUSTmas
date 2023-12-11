@@ -7,11 +7,13 @@ pub fn process(input: &str) -> usize {
 
 fn distances(coord: &[usize]) -> usize {
     let mut total = 0;
-    for i in 0..coord.len() {
-        for j in i+1..coord.len() {
-            total += coord[j] - coord[i];
-        }
+    let mut previous = 0;
+
+    for (i, value) in coord.iter().enumerate() {
+        total += (i) * value - previous;
+        previous += value;
     }
+
     total
 }
 
