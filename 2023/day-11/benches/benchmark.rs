@@ -18,3 +18,10 @@ fn part2() {
         "../input.txt",
     )));
 }
+
+#[divan::bench]
+fn part2_parallel() {
+    part2_parallel::process(divan::black_box(include_str!(
+        "../input.txt",
+    )));
+}
