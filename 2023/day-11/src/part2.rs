@@ -31,17 +31,11 @@ fn distance(
     let end_x = source.0.max(target.0);
     let end_y = source.1.max(target.1);
 
-    let rows = empty_rows
-        .iter()
-        .filter(|x| &start_x < *x && *x < &end_x)
-        .count();
-    let cols = empty_cols
-        .iter()
-        .filter(|y| &start_y < *y && *y < &end_y)
-        .count();
+    let rows = empty_rows[end_x] - empty_rows[start_x];
+    let cols = empty_cols[end_y] - empty_cols[start_y];
 
     let x_distance = end_x - start_x + (scaling_factor - 1) * rows;
-    let y_distance = end_y - start_y + (scaling_factor - 1) *cols;
+    let y_distance = end_y - start_y + (scaling_factor - 1) * cols;
 
     x_distance + y_distance
 }
@@ -50,8 +44,8 @@ fn parse_input(input: &str) -> (Vec<(usize, usize)>, Vec<usize>, Vec<usize>) {
     let grid: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
 
     let mut galaxies = Vec::new();
-    let mut empty_rows = Vec::new();
-    let mut empty_cols = Vec::new();
+    let mut empty_rows = Vec::with_capacity(grid.len());
+    let mut empty_row_count = 0;
     for row in 0..grid.len() {
         let mut row_empty = true;
         for col in 0..grid[0].len() {
@@ -61,10 +55,13 @@ fn parse_input(input: &str) -> (Vec<(usize, usize)>, Vec<usize>, Vec<usize>) {
             }
         }
         if row_empty {
-            empty_rows.push(row);
+            empty_row_count += 1;
         }
+        empty_rows.push(empty_row_count);
     }
 
+    let mut empty_cols = Vec::with_capacity(grid[0].len());
+    let mut empty_col_count = 0;
     for col in 0..grid[0].len() {
         let mut col_empty = true;
         for row in &grid {
@@ -73,8 +70,9 @@ fn parse_input(input: &str) -> (Vec<(usize, usize)>, Vec<usize>, Vec<usize>) {
             }
         }
         if col_empty {
-            empty_cols.push(col);
+            empty_col_count += 1;
         }
+        empty_cols.push(empty_col_count);
     }
 
     (galaxies, empty_rows, empty_cols)
