@@ -14,7 +14,6 @@ struct Record {
     damaged_len: u8,
 }
 
-
 impl Record {
     fn new(springs: Vec<char>, damaged: Vec<u8>) -> Record {
         let spring_len = springs.len() as u8;

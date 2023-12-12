@@ -11,11 +11,10 @@ pub fn process(_input: &str) -> usize {
 struct Record {
     springs: Vec<char>,
     damaged: Vec<u8>,
-    cache: HashMap<(u8,u8,u8), usize>,
+    cache: HashMap<(u8, u8, u8), usize>,
     spring_len: u8,
     damaged_len: u8,
 }
-
 
 impl Record {
     fn new(springs: Vec<char>, damaged: Vec<u8>) -> Record {
@@ -122,8 +121,7 @@ fn parse_input(input: &str) -> Vec<Record> {
 }
 
 fn repeat_five(input: &str, joining_char: char) -> String {
-    let repeated = vec![input; 5];
-    repeated.join(&joining_char.to_string())
+    [input; 5].join(&joining_char.to_string())
 }
 
 #[cfg(test)]
