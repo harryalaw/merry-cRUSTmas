@@ -55,11 +55,15 @@ impl Record {
                 };
             }
             '#' => {
-                total += self.count(spring_idx + 1, damaged_idx, seen + 1, remaining);
+                if damaged_idx < self.damaged.len() && seen < self.damaged[damaged_idx] {
+                    total += self.count(spring_idx + 1, damaged_idx, seen + 1, remaining);
+                }
             }
             '?' => {
                 // treat as damaged
-                total += self.count(spring_idx + 1, damaged_idx, seen + 1, remaining);
+                if damaged_idx < self.damaged.len() && seen < self.damaged[damaged_idx] {
+                    total += self.count(spring_idx + 1, damaged_idx, seen + 1, remaining);
+                }
 
                 // treat as operational
                 if seen == 0 {
