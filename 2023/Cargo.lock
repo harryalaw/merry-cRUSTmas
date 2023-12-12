@@ -3,6 +3,25 @@
 version = 3
 
 [[package]]
+name = "all-days"
+version = "0.1.0"
+dependencies = [
+ "day-01",
+ "day-02",
+ "day-03",
+ "day-04",
+ "day-05",
+ "day-06",
+ "day-07",
+ "day-08",
+ "day-09",
+ "day-10",
+ "day-11",
+ "divan",
+ "tracing",
+]
+
+[[package]]
 name = "anstyle"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -176,6 +195,15 @@ dependencies = [
 
 [[package]]
 name = "day-11"
+version = "0.1.0"
+dependencies = [
+ "divan",
+ "rayon",
+ "tracing",
+]
+
+[[package]]
+name = "day-12"
 version = "0.1.0"
 dependencies = [
  "divan",
