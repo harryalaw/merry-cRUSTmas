@@ -9,30 +9,39 @@ pub fn process(_input: &str) -> usize {
 
 struct Record {
     springs: Vec<char>,
-    damaged: Vec<usize>,
+    damaged: Vec<u8>,
+    spring_len: u8,
+    damaged_len: u8,
 }
 
+
 impl Record {
+    fn new(springs: Vec<char>, damaged: Vec<u8>) -> Record {
+        let spring_len = springs.len() as u8;
+        let damaged_len = damaged.len() as u8;
+
+        Record {
+            springs,
+            damaged,
+            spring_len,
+            damaged_len,
+        }
+    }
+
     fn check(&mut self) -> usize {
         let remaining = self.damaged.iter().sum();
         self.count(0, 0, 0, remaining)
     }
 
-    fn count(
-        &mut self,
-        spring_idx: usize,
-        damaged_idx: usize,
-        seen: usize,
-        remaining: usize,
-    ) -> usize {
+    fn count(&mut self, spring_idx: u8, damaged_idx: u8, seen: u8, remaining: u8) -> usize {
         // not enough space for the rest
-        if self.springs.len() - spring_idx + seen < remaining {
+        if self.spring_len - spring_idx + seen < remaining {
             return 0;
         }
 
-        if spring_idx == self.springs.len() {
-            if damaged_idx == self.damaged.len() && seen == 0
-                || damaged_idx == self.damaged.len() - 1 && seen == self.damaged[damaged_idx]
+        if spring_idx == self.spring_len {
+            if damaged_idx == self.damaged_len && seen == 0
+                || damaged_idx == self.damaged_len - 1 && seen == self.damaged[damaged_idx as usize]
             {
                 return 1;
             } else {
@@ -41,43 +50,47 @@ impl Record {
         }
 
         let mut total = 0;
-        match self.springs[spring_idx] {
+        match self.springs[spring_idx as usize] {
             '.' => {
                 if seen == 0 {
                     total += self.count(spring_idx + 1, damaged_idx, 0, remaining);
-                } else if damaged_idx < self.damaged.len() && seen == self.damaged[damaged_idx] {
+                } else if damaged_idx < self.damaged_len
+                    && seen == self.damaged[damaged_idx as usize]
+                {
                     total += self.count(
                         spring_idx + 1,
                         damaged_idx + 1,
                         0,
-                        remaining - self.damaged[damaged_idx],
+                        remaining - self.damaged[damaged_idx as usize],
                     );
                 };
             }
             '#' => {
-                if damaged_idx < self.damaged.len() && seen < self.damaged[damaged_idx] {
+                if damaged_idx < self.damaged_len && seen < self.damaged[damaged_idx as usize] {
                     total += self.count(spring_idx + 1, damaged_idx, seen + 1, remaining);
                 }
             }
             '?' => {
                 // treat as damaged
-                if damaged_idx < self.damaged.len() && seen < self.damaged[damaged_idx] {
+                if damaged_idx < self.damaged_len && seen < self.damaged[damaged_idx as usize] {
                     total += self.count(spring_idx + 1, damaged_idx, seen + 1, remaining);
                 }
 
                 // treat as operational
                 if seen == 0 {
                     total += self.count(spring_idx + 1, damaged_idx, 0, remaining);
-                } else if damaged_idx < self.damaged.len() && seen == self.damaged[damaged_idx] {
+                } else if damaged_idx < self.damaged_len
+                    && seen == self.damaged[damaged_idx as usize]
+                {
                     total += self.count(
                         spring_idx + 1,
                         damaged_idx + 1,
                         0,
-                        remaining - self.damaged[damaged_idx],
+                        remaining - self.damaged[damaged_idx as usize],
                     );
                 };
             }
-            _ => panic!("Invalid char {}", self.springs[spring_idx]),
+            _ => panic!("Invalid char {}", self.springs[spring_idx as usize]),
         }
         total
     }
@@ -94,7 +107,7 @@ fn parse_input(input: &str) -> Vec<Record> {
                 .map(|x| x.parse().expect("It's a number"))
                 .collect();
 
-            Record { springs, damaged }
+            Record::new(springs, damaged)
         })
         .collect()
 }
