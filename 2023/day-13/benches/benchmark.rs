@@ -19,3 +19,8 @@ fn part1_hash() {
 fn part2() {
     part2::process(divan::black_box(include_str!("../input.txt",)));
 }
+
+#[divan::bench]
+fn part2_hash() {
+    part2_hash::process(divan::black_box(include_str!("../input.txt",)));
+}
