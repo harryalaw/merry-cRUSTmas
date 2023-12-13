@@ -30,11 +30,11 @@ fn is_nearly_symmetric(array: &[u64], index: usize) -> bool {
     let mut diffs = 0;
 
     while hi < array.len() && lo > 0 && diffs < 2 {
-        let comparison = compare(array[hi], array[lo-1]);
+        let comparison = compare(array[hi], array[lo - 1]);
         match (diffs, comparison) {
-            (_, LineComparison::Equal) => {},
-            (0, LineComparison::OneDiff) => diffs += 1,
-            (_, LineComparison::OneDiff | LineComparison::ManyDiffs) => return false,
+            (_, Comparison::Equal) => {}
+            (0, Comparison::OneDiff) => diffs += 1,
+            (_, Comparison::OneDiff | Comparison::ManyDiffs) => return false,
         }
 
         hi += 1;
@@ -42,7 +42,6 @@ fn is_nearly_symmetric(array: &[u64], index: usize) -> bool {
     }
     diffs == 1
 }
-
 
 struct MirrorMaze {
     rows: Vec<u64>,
@@ -72,21 +71,26 @@ fn parse_input(input: &str) -> Vec<MirrorMaze> {
         .collect()
 }
 
-enum LineComparison {
+enum Comparison {
     Equal,
     OneDiff,
-    ManyDiffs
+    ManyDiffs,
 }
 
-fn compare(a: u64, b: u64) -> LineComparison {
-    if a == b {
-        return LineComparison::Equal;
-    } 
+/*
+  a,b are binary representations of the lines.
+  If a == b then they represent the same line so are equal.
+  If a differs from b by a power of two then they have one difference
+   -> Represents flipping a . to a #
+  Can get the diff of them with xor
+  Then can use (a & (a-1)) to tell if it's a power of 2
+*/
+fn compare(a: u64, b: u64) -> Comparison {
     let xor = a ^ b;
-    if xor & (xor - 1) == 0 {
-        return LineComparison::OneDiff;
-    } else {
-        return LineComparison::ManyDiffs;
+    match (a == b, xor & (xor - 1) == 0) {
+        (true, _) => Comparison::Equal,
+        (false, true) => Comparison::OneDiff,
+        (false, false) => Comparison::ManyDiffs,
     }
 }
 

@@ -1,5 +1,3 @@
-use rayon::prelude::*;
-
 #[tracing::instrument]
 pub fn process(_input: &str) -> usize {
     let puzzles = parse_input(_input);
