@@ -1,4 +1,4 @@
-use std::fmt;
+use rayon::prelude::*;
 
 #[tracing::instrument]
 pub fn process(_input: &str) -> usize {
@@ -29,10 +29,10 @@ fn is_nearly_symmetric(array: &[Vec<char>], index: usize) -> bool {
     let mut lo = index;
     let mut diffs = 0;
 
-    while hi < array.len() && lo > 0  && diffs < 2{
-        let line_diffs = count_diffs(&array[hi], &array[lo -1]);
+    while hi < array.len() && lo > 0 && diffs < 2 {
+        let line_diffs = count_diffs(&array[hi], &array[lo - 1]);
         if line_diffs > 1 {
-            return false
+            return false;
         }
         diffs += line_diffs;
         hi += 1;
@@ -54,25 +54,6 @@ fn count_diffs(a: &[char], b: &[char]) -> usize {
 struct MirrorMaze {
     row_based: Vec<Vec<char>>,
     col_based: Vec<Vec<char>>,
-}
-
-impl fmt::Debug for MirrorMaze {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut joined_rows = String::new();
-
-        for row in &self.row_based[0..self.row_based.len()] {
-            let row_string: String = row.iter().collect::<String>() + "\n";
-            joined_rows.push_str(&row_string);
-        }
-        let mut joined_cols = String::new();
-
-        for col in &self.col_based[0..self.col_based.len()] {
-            let col_string: String = col.iter().collect::<String>() + "\n";
-            joined_cols.push_str(&col_string);
-        }
-
-        write!(f, "\n{}\n{}\n", joined_rows, joined_cols)
-    }
 }
 
 fn parse_input(input: &str) -> Vec<MirrorMaze> {

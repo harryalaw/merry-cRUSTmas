@@ -1,3 +1,5 @@
+use rayon::prelude::*;
+
 #[tracing::instrument]
 pub fn process(_input: &str) -> usize {
     let puzzles = parse_input(_input);
@@ -6,15 +8,15 @@ pub fn process(_input: &str) -> usize {
 
 fn find_symmetry(mirrors: &MirrorMaze) -> usize {
     // find horizontal symmetry
-    for i in 1..mirrors.col_based.len() {
-        if is_symmetric(&mirrors.col_based, i) {
+    for i in 1..mirrors.cols.len() {
+        if is_symmetric(&mirrors.cols, i) {
             return i;
         }
     }
 
     // find vertical symmetry
-    for j in 1..mirrors.row_based.len() {
-        if is_symmetric(&mirrors.row_based, j) {
+    for j in 1..mirrors.rows.len() {
+        if is_symmetric(&mirrors.rows, j) {
             return 100 * j;
         }
     }
@@ -22,7 +24,7 @@ fn find_symmetry(mirrors: &MirrorMaze) -> usize {
     panic!("Not symmetric")
 }
 
-fn is_symmetric(array: &[Vec<char>], index: usize) -> bool {
+fn is_symmetric(array: &[u64], index: usize) -> bool {
     let mut hi = index;
     let mut lo = index;
     while hi < array.len() && lo > 0 {
@@ -36,32 +38,42 @@ fn is_symmetric(array: &[Vec<char>], index: usize) -> bool {
 }
 
 struct MirrorMaze {
-    row_based: Vec<Vec<char>>,
-    col_based: Vec<Vec<char>>,
+    rows: Vec<u64>,
+    cols: Vec<u64>,
 }
 
 fn parse_input(input: &str) -> Vec<MirrorMaze> {
-    input
-        .split("\n\n")
-        .map(|puzzle| {
-            let row_based: Vec<Vec<char>> =
-                puzzle.lines().map(|line| line.chars().collect()).collect();
+    let puzzles: Vec<&str> = input.split("\n\n").collect();
 
-            let mut col_based = Vec::with_capacity(row_based[0].len());
-            for col in 0..row_based[0].len() {
-                let mut new_col = Vec::with_capacity(row_based.len());
-                for row in &row_based {
+    puzzles
+        .par_iter()
+        .map(|puzzle| {
+            let grid: Vec<Vec<char>> = puzzle.lines().map(|line| line.chars().collect()).collect();
+            let rows: Vec<u64> = grid.iter().map(|line| hash(line)).collect();
+
+            let mut cols = Vec::with_capacity(grid[0].len());
+            for col in 0..grid[0].len() {
+                let mut new_col = Vec::with_capacity(rows.len());
+                for row in &grid {
                     new_col.push(row[col]);
                 }
-                col_based.push(new_col);
+                cols.push(hash(&new_col));
             }
 
-            MirrorMaze {
-                row_based,
-                col_based,
-            }
+            MirrorMaze { rows, cols }
         })
         .collect()
+}
+
+fn hash(line: &[char]) -> u64 {
+    let mut hash = 0;
+    for char in line {
+        hash *= 2;
+        if char == &'#' {
+            hash += 1
+        }
+    }
+    hash
 }
 
 #[cfg(test)]
