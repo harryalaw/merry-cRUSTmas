@@ -13,3 +13,6 @@ rayon = "1.8"
 inherits = "dev"
 debug = true
 
+[profile.flamegraph-r]
+inherits = "release"
+debug = true
