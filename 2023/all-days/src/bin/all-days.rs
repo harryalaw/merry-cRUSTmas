@@ -96,7 +96,6 @@ fn main() -> Result<(), ()> {
     total_time_in_nanos += duration.as_nanos();
     println!();
 
-
     // day 7
     let file = include_str!("../../../day-07/input.txt");
     let now = Instant::now();
@@ -126,7 +125,6 @@ fn main() -> Result<(), ()> {
     println!("Day 08 Part2: {duration:?}");
     total_time_in_nanos += duration.as_nanos();
     println!();
-
 
     // day 9
     let file = include_str!("../../../day-09/input.txt");
@@ -187,7 +185,7 @@ fn main() -> Result<(), ()> {
     println!("Day 12 Part2: {duration:?}");
     total_time_in_nanos += duration.as_nanos();
     println!();
-    
+
     // day 13
     let file = include_str!("../../../day-13/input.txt");
     let now = Instant::now();
@@ -218,9 +216,22 @@ fn main() -> Result<(), ()> {
     total_time_in_nanos += duration.as_nanos();
     println!();
 
+    // day 15
+    let file = include_str!("../../../day-15/input.txt");
+    let now = Instant::now();
+    let _result = day_15::part1::process(file);
+    let duration = now.elapsed();
+    println!("Day 15 Part1: {duration:?}");
+    total_time_in_nanos += duration.as_nanos();
+
+    let now = Instant::now();
+    let _result = day_15::part2::process(file);
+    let duration = now.elapsed();
+    println!("Day 15 Part2: {duration:?}");
+    total_time_in_nanos += duration.as_nanos();
+    println!();
     let total_duration = Duration::from_nanos(total_time_in_nanos as u64);
 
     println!("Total time: {total_duration:?}");
     Ok(())
 }
-
