@@ -16,11 +16,11 @@ fn slide_north(old_grid: &Grid) -> Grid {
             match old_grid.grid[row][col] {
                 '.' => {
                     new_grid[row][col] = '.';
-                },
+                }
                 '#' => {
                     new_grid[row][col] = '#';
                     next_gap = row + 1;
-                },
+                }
                 'O' => {
                     new_grid[row][col] = '.';
                     new_grid[next_gap][col] = 'O';
@@ -28,10 +28,9 @@ fn slide_north(old_grid: &Grid) -> Grid {
                     while next_gap < old_grid.height && new_grid[next_gap][col] == '#' {
                         next_gap += 1;
                     }
-                },
-                _ => panic!("Unexpected item in the bagging area")
+                }
+                _ => panic!("Unexpected item in the bagging area"),
             }
-
         }
     }
 
@@ -43,15 +42,11 @@ fn slide_north(old_grid: &Grid) -> Grid {
 }
 
 fn score(grid: &Grid) -> usize {
-
-
     let mut total = 0;
     for row in 0..grid.height {
-        let rocks = grid.grid[row].iter()
-            .filter(|x| *x == &'O')
-            .count();
+        let rocks = grid.grid[row].iter().filter(|x| *x == &'O').count();
 
-        total  += (grid.height - row) * rocks;
+        total += (grid.height - row) * rocks;
     }
     total
 }

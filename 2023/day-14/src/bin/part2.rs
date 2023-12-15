@@ -1,9 +1,12 @@
-use day_14::part2::process;
+use day_14::*;
 
 #[tracing::instrument]
 fn main() -> Result<(), ()> {
     let file = include_str!("../../input.txt");
-    let result = process(file);
+    let result = part2::process(file);
+    println!("{}", result);
+
+    let result = part2_mut::process(file);
     println!("{}", result);
     Ok(())
 }
