@@ -30,7 +30,7 @@ impl States {
         let mut temp_idx = self.scores.len() - 1;
 
         while temp_idx != idx {
-            spin_cycle(1, &mut self.grid);
+            spin_cycle(&mut self.grid);
             temp_idx += 1;
             self.scores.push(score(&self.grid));
         }
@@ -77,13 +77,11 @@ struct Score {
     value_before: usize,
 }
 
-fn spin_cycle(count: usize, grid: &mut Grid) {
-    for _i in 0..count {
-        slide_north(grid);
-        slide_west(grid);
-        slide_south(grid);
-        slide_east(grid);
-    }
+fn spin_cycle(grid: &mut Grid) {
+    slide_north(grid);
+    slide_west(grid);
+    slide_south(grid);
+    slide_east(grid);
 }
 
 fn slide_north(old_grid: &mut Grid) {
@@ -286,7 +284,7 @@ O.#..O.#.#
 #...O###..
 #..OO#....",
         );
-        spin_cycle(1, &mut input);
+        spin_cycle(&mut input);
 
         assert_eq!(output, input);
     }
@@ -318,7 +316,8 @@ O.#..O.#.#
 #..OO###..
 #.OOO#...O",
         );
-        spin_cycle(2, &mut input);
+        spin_cycle(&mut input);
+        spin_cycle(&mut input);
 
         assert_eq!(output, input);
     }
@@ -350,7 +349,9 @@ O.#..O.#.#
 #...O###.O
 #.OOO#...O",
         );
-        spin_cycle(3, &mut input);
+        spin_cycle(&mut input);
+        spin_cycle(&mut input);
+        spin_cycle(&mut input);
 
         assert_eq!(output, input);
     }
