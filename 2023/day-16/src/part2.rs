@@ -7,20 +7,16 @@ pub fn process(input: &str) -> usize {
     let max_row = grid.len();
     let max_col = grid[0].len();
 
-    if max_row != max_col {
-        panic!("We're assuming that the row and columns are the same");
-    }
+    let row_entries = (0..max_row).flat_map(|row| {
+        vec![
+            (row, 0, Direction::Right),
+            (row, max_col - 1, Direction::Left),
+        ]
+    });
+    let col_entries = (0..max_col)
+        .flat_map(|col| vec![(0, col, Direction::Down), (max_row - 1, col, Direction::Up)]);
 
-    let positions: Vec<(usize, usize, Direction)> = (0..max_row)
-        .flat_map(|idx| {
-            vec![
-                (0, idx, Direction::Down),
-                (idx, 0, Direction::Right),
-                (max_row - 1, idx, Direction::Up),
-                (idx, max_row - 1, Direction::Left),
-            ]
-        })
-        .collect();
+    let positions: Vec<(usize, usize, Direction)> = row_entries.chain(col_entries).collect();
 
     positions
         .into_par_iter()
