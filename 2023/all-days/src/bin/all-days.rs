@@ -232,6 +232,22 @@ fn main() -> Result<(), ()> {
     println!();
     let total_duration = Duration::from_nanos(total_time_in_nanos as u64);
 
+    // day 16
+    let file = include_str!("../../../day-16/input.txt");
+    let now = Instant::now();
+    let _result = day_16::part1::process(file);
+    let duration = now.elapsed();
+    println!("Day 16 Part1: {duration:?}");
+    total_time_in_nanos += duration.as_nanos();
+
+    let now = Instant::now();
+    let _result = day_16::part2::process(file);
+    let duration = now.elapsed();
+    println!("Day 16 Part2: {duration:?}");
+    total_time_in_nanos += duration.as_nanos();
+    println!();
+    let total_duration = Duration::from_nanos(total_time_in_nanos as u64);
+
     println!("Total time: {total_duration:?}");
     Ok(())
 }
