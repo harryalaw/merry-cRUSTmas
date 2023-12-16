@@ -7,162 +7,33 @@ pub fn process(input: &str) -> usize {
     let max_row = grid.len();
     let max_col = grid[0].len();
 
-    let row_max_energy: usize = (0..max_row)
-        .into_par_iter()
-        .map(|row| {
-            let mut to_visit = Vec::new();
-            let pos = (row, 0);
-            match grid[row][0] {
-                '\\' => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Down,
-                    });
-                }
-                '/' => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Up,
-                    });
-                }
-                '|' => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Up,
-                    });
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Down,
-                    });
-                }
-                _ => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Right,
-                    });
-                }
-            }
-            let mut max_energy = compute_energy(&grid, max_row, max_col, &mut to_visit);
+    if max_row != max_col {
+        panic!("We're assuming that the row and columns are the same");
+    }
 
-            let mut to_visit = Vec::new();
-            let pos = (row, max_col - 1);
-            match grid[row][max_col - 1] {
-                '\\' => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Up,
-                    });
-                }
-                '/' => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Down,
-                    });
-                }
-                '|' => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Up,
-                    });
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Down,
-                    });
-                }
-                _ => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Left,
-                    });
-                }
-            }
-            let energy = compute_energy(&grid, max_row, max_col, &mut to_visit);
-            if energy > max_energy {
-                max_energy = energy;
-            }
-
-            max_energy
+    let positions: Vec<(usize, usize, Direction)> = (0..max_row)
+        .flat_map(|idx| {
+            vec![
+                (0, idx, Direction::Down),
+                (idx, 0, Direction::Right),
+                (max_row - 1, idx, Direction::Up),
+                (idx, max_row - 1, Direction::Left),
+            ]
         })
-        .max().expect("Exists");
+        .collect();
 
-    let col_max_energy: usize = (0..max_col)
+    positions
         .into_par_iter()
-        .map(|col| {
+        .map(|(row, col, dir)| {
             let mut to_visit = Vec::new();
-            let pos = (0, col);
-            match grid[0][col] {
-                '\\' => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Right,
-                    });
-                }
-                '/' => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Left,
-                    });
-                }
-                '-' => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Right,
-                    });
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Left,
-                    });
-                }
-                _ => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Down,
-                    });
-                }
-            }
-            let mut max_energy = compute_energy(&grid, max_row, max_col, &mut to_visit);
-
-            let mut to_visit = Vec::new();
-            let pos = (max_row - 1, col);
-            match grid[max_row - 1][col] {
-                '\\' => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Left,
-                    });
-                }
-                '/' => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Right,
-                    });
-                }
-                '-' => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Right,
-                    });
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Left,
-                    });
-                }
-                _ => {
-                    to_visit.push(Laser {
-                        pos,
-                        dir: Direction::Up,
-                    });
-                }
-            }
-            let energy = compute_energy(&grid, max_row, max_col, &mut to_visit);
-            if energy > max_energy {
-                max_energy = energy;
-            }
-            max_energy
+            let pos = (row, col);
+            let mirror = grid[row][col];
+            let laser = Laser { pos, dir };
+            reflect(laser, &mut to_visit, mirror);
+            compute_energy(&grid, max_row, max_col, &mut to_visit)
         })
-        .max().expect("Max exists");
-
-    row_max_energy.max(col_max_energy)
+        .max()
+        .expect("max value exists")
 }
 
 fn compute_energy(
@@ -206,142 +77,37 @@ fn do_visit(
             update_energies(energies, laser);
 
             if let Some(new_laser) = laser.travel(max_row, max_col) {
-                match grid[new_laser.pos.0][new_laser.pos.1] {
-                    '.' => {
-                        next_iter.push(new_laser);
-                    }
-                    '/' => match new_laser.dir {
-                        Direction::Up => {
-                            let (row, col) = new_laser.pos;
-                            if col != max_col {
-                                next_iter.push(Laser {
-                                    pos: (row, col),
-                                    dir: Direction::Right,
-                                });
-                            }
-                        }
-                        Direction::Left => {
-                            let (row, col) = new_laser.pos;
-                            if row != max_row {
-                                next_iter.push(Laser {
-                                    pos: (row, col),
-                                    dir: Direction::Down,
-                                });
-                            }
-                        }
-                        Direction::Down => {
-                            let (row, col) = new_laser.pos;
-                            if row != 0 {
-                                next_iter.push(Laser {
-                                    pos: (row, col),
-                                    dir: Direction::Left,
-                                });
-                            }
-                        }
-                        Direction::Right => {
-                            let (row, col) = new_laser.pos;
-                            if col != 0 {
-                                next_iter.push(Laser {
-                                    pos: (row, col),
-                                    dir: Direction::Up,
-                                });
-                            }
-                        }
-                    },
-                    '\\' => match new_laser.dir {
-                        Direction::Up => {
-                            let (row, col) = new_laser.pos;
-                            if col != 0 {
-                                next_iter.push(Laser {
-                                    pos: (row, col),
-                                    dir: Direction::Left,
-                                });
-                            }
-                        }
-                        Direction::Left => {
-                            let (row, col) = new_laser.pos;
-                            if row != 0 {
-                                next_iter.push(Laser {
-                                    pos: (row, col),
-                                    dir: Direction::Up,
-                                });
-                            }
-                        }
-                        Direction::Down => {
-                            let (row, col) = new_laser.pos;
-                            if col != max_col {
-                                next_iter.push(Laser {
-                                    pos: (row, col),
-                                    dir: Direction::Right,
-                                });
-                            }
-                        }
-                        Direction::Right => {
-                            let (row, col) = new_laser.pos;
-                            if row != max_row {
-                                next_iter.push(Laser {
-                                    pos: (row, col),
-                                    dir: Direction::Down,
-                                });
-                            }
-                        }
-                    },
-                    '|' => match new_laser.dir {
-                        Direction::Up | Direction::Down => {
-                            next_iter.push(new_laser);
-                        }
-                        Direction::Left | Direction::Right => {
-                            let (row, col) = new_laser.pos;
-                            if row != 0 {
-                                let next_laser = Laser {
-                                    pos: (row, col),
-                                    dir: Direction::Up,
-                                };
-                                next_iter.push(next_laser)
-                            }
-                            if row != max_row {
-                                let next_laser = Laser {
-                                    pos: (row, col),
-                                    dir: Direction::Down,
-                                };
-
-                                next_iter.push(next_laser)
-                            }
-                        }
-                    },
-                    '-' => match new_laser.dir {
-                        Direction::Left | Direction::Right => {
-                            next_iter.push(new_laser);
-                        }
-                        Direction::Up | Direction::Down => {
-                            let (row, col) = new_laser.pos;
-                            if col != 0 {
-                                let next_laser = Laser {
-                                    pos: (row, col),
-                                    dir: Direction::Left,
-                                };
-
-                                next_iter.push(next_laser)
-                            }
-                            if col != max_col {
-                                let next_laser = Laser {
-                                    pos: (row, col),
-                                    dir: Direction::Right,
-                                };
-
-                                next_iter.push(next_laser)
-                            }
-                        }
-                    },
-                    _ => panic!(
-                        "Not another one! {}",
-                        grid[new_laser.pos.0][new_laser.pos.1]
-                    ),
-                }
+                let mirror = grid[new_laser.pos.0][new_laser.pos.1];
+                reflect(new_laser, &mut next_iter, mirror);
             }
         }
-
         *to_visit = next_iter;
+    }
+}
+
+fn reflect(laser: Laser, next_iter: &mut Vec<Laser>, mirror: char) {
+    let dir = laser.dir;
+    match (mirror, dir) {
+        ('\\', Direction::Right) => next_iter.push(laser.with(Direction::Down)),
+        ('\\', Direction::Down) => next_iter.push(laser.with(Direction::Right)),
+        ('\\', Direction::Left) => next_iter.push(laser.with(Direction::Up)),
+        ('\\', Direction::Up) => next_iter.push(laser.with(Direction::Left)),
+        ('/', Direction::Right) => next_iter.push(laser.with(Direction::Up)),
+        ('/', Direction::Up) => next_iter.push(laser.with(Direction::Right)),
+        ('/', Direction::Down) => next_iter.push(laser.with(Direction::Left)),
+        ('/', Direction::Left) => next_iter.push(laser.with(Direction::Down)),
+        ('|', Direction::Down | Direction::Up) => next_iter.push(laser),
+        ('|', Direction::Left | Direction::Right) => {
+            next_iter.push(laser.with(Direction::Up));
+            next_iter.push(laser.with(Direction::Down))
+        }
+        ('-', Direction::Left | Direction::Right) => next_iter.push(laser),
+        ('-', Direction::Down | Direction::Up) => {
+            next_iter.push(laser.with(Direction::Left));
+            next_iter.push(laser.with(Direction::Right))
+        }
+        ('.', _) => next_iter.push(laser),
+        (_, _) => panic!("Not a mirror"),
     }
 }
 
@@ -372,6 +138,10 @@ struct Laser {
 }
 
 impl Laser {
+    fn with(&self, dir: Direction) -> Laser {
+        Laser { pos: self.pos, dir }
+    }
+
     fn travel(&self, max_row: usize, max_col: usize) -> Option<Laser> {
         match self.dir {
             Direction::Up => {
