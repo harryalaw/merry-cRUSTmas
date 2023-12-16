@@ -210,7 +210,7 @@ fn main() -> Result<(), ()> {
     total_time_in_nanos += duration.as_nanos();
 
     let now = Instant::now();
-    let _result = day_14::part2::process(file);
+    let _result = day_14::part2_mut::process(file);
     let duration = now.elapsed();
     println!("Day 14 Part2: {duration:?}");
     total_time_in_nanos += duration.as_nanos();
