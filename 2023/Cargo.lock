@@ -257,6 +257,7 @@ name = "day-16"
 version = "0.1.0"
 dependencies = [
  "divan",
+ "rayon",
  "tracing",
 ]
 

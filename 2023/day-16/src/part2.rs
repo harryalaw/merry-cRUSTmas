@@ -1,3 +1,5 @@
+use rayon::prelude::*;
+
 #[tracing::instrument]
 pub fn process(input: &str) -> usize {
     let grid: Vec<Vec<char>> = input.lines().map(|line| line.chars().collect()).collect();
@@ -5,161 +7,162 @@ pub fn process(input: &str) -> usize {
     let max_row = grid.len();
     let max_col = grid[0].len();
 
-    let mut max_energy = 0;
+    let row_max_energy: usize = (0..max_row)
+        .into_par_iter()
+        .map(|row| {
+            let mut to_visit = Vec::new();
+            let pos = (row, 0);
+            match grid[row][0] {
+                '\\' => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Down,
+                    });
+                }
+                '/' => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Up,
+                    });
+                }
+                '|' => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Up,
+                    });
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Down,
+                    });
+                }
+                _ => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Right,
+                    });
+                }
+            }
+            let mut max_energy = compute_energy(&grid, max_row, max_col, &mut to_visit);
 
-    for row in 0..max_row {
-        let mut to_visit = Vec::new();
-        let pos = (row, 0);
-        match grid[row][0] {
-            '\\' => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Down,
-                });
+            let mut to_visit = Vec::new();
+            let pos = (row, max_col - 1);
+            match grid[row][max_col - 1] {
+                '\\' => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Up,
+                    });
+                }
+                '/' => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Down,
+                    });
+                }
+                '|' => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Up,
+                    });
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Down,
+                    });
+                }
+                _ => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Left,
+                    });
+                }
             }
-            '/' => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Up,
-                });
+            let energy = compute_energy(&grid, max_row, max_col, &mut to_visit);
+            if energy > max_energy {
+                max_energy = energy;
             }
-            '|' => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Up,
-                });
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Down,
-                });
-            }
-            _ => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Right,
-                });
-            }
-        }
-        let energy = compute_energy(&grid, max_row, max_col, &mut to_visit);
-        if energy > max_energy {
-            max_energy = energy;
-        }
 
-        let mut to_visit = Vec::new();
-        let pos = (row, max_col - 1);
-        match grid[row][max_col - 1] {
-            '\\' => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Up,
-                });
-            }
-            '/' => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Down,
-                });
-            }
-            '|' => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Up,
-                });
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Down,
-                });
-            }
-            _ => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Left,
-                });
-            }
-        }
-        let energy = compute_energy(&grid, max_row, max_col, &mut to_visit);
-        if energy > max_energy {
-            max_energy = energy;
-        }
-    }
+            max_energy
+        })
+        .max().expect("Exists");
 
-    for col in 0..max_col {
-        let mut to_visit = Vec::new();
-        let pos = (0, col);
-        match grid[0][col] {
-            '\\' => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Right,
-                });
+    let col_max_energy: usize = (0..max_col)
+        .into_par_iter()
+        .map(|col| {
+            let mut to_visit = Vec::new();
+            let pos = (0, col);
+            match grid[0][col] {
+                '\\' => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Right,
+                    });
+                }
+                '/' => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Left,
+                    });
+                }
+                '-' => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Right,
+                    });
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Left,
+                    });
+                }
+                _ => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Down,
+                    });
+                }
             }
-            '/' => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Left,
-                });
-            }
-            '-' => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Right,
-                });
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Left,
-                });
-            }
-            _ => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Down,
-                });
-            }
-        }
-        let energy = compute_energy(&grid, max_row, max_col, &mut to_visit);
-        if energy > max_energy {
-            max_energy = energy;
-        }
+            let mut max_energy = compute_energy(&grid, max_row, max_col, &mut to_visit);
 
-        let mut to_visit = Vec::new();
-        let pos = (max_row - 1, col);
-        match grid[max_row - 1][col] {
-            '\\' => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Left,
-                });
+            let mut to_visit = Vec::new();
+            let pos = (max_row - 1, col);
+            match grid[max_row - 1][col] {
+                '\\' => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Left,
+                    });
+                }
+                '/' => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Right,
+                    });
+                }
+                '-' => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Right,
+                    });
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Left,
+                    });
+                }
+                _ => {
+                    to_visit.push(Laser {
+                        pos,
+                        dir: Direction::Up,
+                    });
+                }
             }
-            '/' => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Right,
-                });
+            let energy = compute_energy(&grid, max_row, max_col, &mut to_visit);
+            if energy > max_energy {
+                max_energy = energy;
             }
-            '-' => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Right,
-                });
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Left,
-                });
-            }
-            _ => {
-                to_visit.push(Laser {
-                    pos,
-                    dir: Direction::Up,
-                });
-            }
-        }
-        let energy = compute_energy(&grid, max_row, max_col, &mut to_visit);
-        if energy > max_energy {
-            max_energy = energy;
-        }
-    }
+            max_energy
+        })
+        .max().expect("Max exists");
 
-    max_energy
+    row_max_energy.max(col_max_energy)
 }
 
 fn compute_energy(
