@@ -8,7 +8,7 @@ use hashbrown::HashMap;
 pub fn process(input: &str) -> usize {
     let grid = parse_grid(input);
 
-    let mut distance_map: HashMap<(usize, usize, Direction), usize> = HashMap::new();
+    let mut distance_map: HashMap<u32, usize> = HashMap::new();
 
     let mut priority_q = BinaryHeap::new();
     let start_node_1 = Node {
@@ -32,39 +32,29 @@ pub fn process(input: &str) -> usize {
             return node.minimum;
         }
 
+        let key = create_key(&node);
         let previous = *distance_map
-            .get(&(node.pos.0, node.pos.1, node.direction))
+            .get(&key)
             .unwrap_or(&usize::MAX);
         if node.minimum > previous {
             continue;
         }
 
-        let neighbours = node.get_neighbours(&grid);
-
-        for neighbour in neighbours {
-            let previous = *distance_map
-                .get(&(
-                    neighbour.pos.0,
-                    neighbour.pos.1,
-                    neighbour.direction,
-                ))
-                .unwrap_or(&usize::MAX);
-
-            if neighbour.minimum < previous {
-                distance_map.insert(
-                    (
-                        neighbour.pos.0,
-                        neighbour.pos.1,
-                        neighbour.direction,
-                    ),
-                    neighbour.minimum,
-                );
-                priority_q.push(Reverse(neighbour));
-            }
-        }
+        node.add_neighbours(&grid, &mut distance_map, &mut priority_q);
     }
 
     panic!("couldn't get to the end");
+}
+
+fn create_key(node: &Node) -> u32 {
+    let (row, col) = node.pos;
+    let direction_bytes = match node.direction {
+        Direction::Up => 1,
+        Direction::Right => 2,
+        Direction::Down => 4,
+        Direction::Left => 8,
+    };
+    u32::from_be_bytes([0, row as u8, col as u8, direction_bytes])
 }
 
 struct Grid {
@@ -131,14 +121,17 @@ struct Node {
 }
 
 impl Node {
-    fn get_neighbours(&self, grid: &Grid) -> Vec<Node> {
+    fn add_neighbours(
+        &self,
+        grid: &Grid,
+        distance_map: &mut HashMap<u32, usize>,
+        priority_q: &mut BinaryHeap<Reverse<Node>>,
+    ) {
         let max_row = grid.grid.len();
         let max_col = grid.grid[0].len();
 
         let row = self.pos.0;
         let col = self.pos.1;
-
-        let mut neighbours = Vec::new();
 
         for dir in Direction::iter() {
             if dir == self.direction || dir == self.direction.inverse() {
@@ -156,14 +149,20 @@ impl Node {
                     continue;
                 }
 
-                neighbours.push(Node {
+                let neighbour = Node {
                     pos: (row, col),
                     direction: dir,
                     minimum,
-                });
+                };
+                let key = create_key(&neighbour);
+                let previous = *distance_map.get(&(key)).unwrap_or(&usize::MAX);
+
+                if neighbour.minimum < previous {
+                    distance_map.insert(key, neighbour.minimum);
+                    priority_q.push(Reverse(neighbour));
+                }
             }
         }
-        neighbours
     }
 }
 
