@@ -1,11 +1,10 @@
-use hashbrown::HashMap;
 use std::{cmp::Reverse, collections::BinaryHeap};
 
 #[tracing::instrument]
 pub fn process(input: &str) -> usize {
     let grid = parse_grid(input);
 
-    let mut distance_map: HashMap<u32, usize> = HashMap::new();
+    let mut distance_map = FakeMap::new(grid.len(), grid[0].len());
 
     let mut priority_q = BinaryHeap::new();
     let start_node_1 = Node {
@@ -21,15 +20,16 @@ pub fn process(input: &str) -> usize {
 
     priority_q.push(Reverse(start_node_1));
     priority_q.push(Reverse(start_node_2));
-    let target = (grid.grid.len() - 1, grid.grid[0].len() - 1);
+    let target = (grid.len() - 1, grid[0].len() - 1);
 
     while let Some(Reverse(node)) = priority_q.pop() {
         if node.pos == target {
             return node.minimum;
         }
-        let key = create_key(&node);
+        let (row, col) = node.pos;
+        let dir = node.direction;
 
-        let previous = *distance_map.get(&(key)).unwrap_or(&usize::MAX);
+        let previous = distance_map.get(row, col, dir);
         if node.minimum > previous {
             continue;
         }
@@ -40,32 +40,15 @@ pub fn process(input: &str) -> usize {
     panic!("couldn't get to the end");
 }
 
-fn create_key(node: &Node) -> u32 {
-    let (row, col) = node.pos;
-    let direction_bytes = match node.direction {
-        Direction::Up => 1,
-        Direction::Right => 2,
-        Direction::Down => 4,
-        Direction::Left => 8,
-    };
-    u32::from_be_bytes([0, row as u8, col as u8, direction_bytes])
-}
-
-struct Grid {
-    grid: Vec<Vec<usize>>,
-}
-
-fn parse_grid(input: &str) -> Grid {
-    let grid = input
+fn parse_grid(input: &str) -> Vec<Vec<usize>> {
+    input
         .lines()
         .map(|line| {
             line.chars()
                 .map(|char| char.to_digit(10).expect("It's a number") as usize)
                 .collect()
         })
-        .collect();
-
-    Grid { grid }
+        .collect()
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
@@ -117,12 +100,12 @@ struct Node {
 impl Node {
     fn add_neighbours(
         &self,
-        grid: &Grid,
-        distance_map: &mut HashMap<u32, usize>,
+        grid: &[Vec<usize>],
+        distance_map: &mut FakeMap,
         priority_q: &mut BinaryHeap<Reverse<Node>>,
     ) {
-        let max_row = grid.grid.len();
-        let max_col = grid.grid[0].len();
+        let max_row = grid.len();
+        let max_col = grid[0].len();
 
         let row = self.pos.0;
         let col = self.pos.1;
@@ -138,18 +121,17 @@ impl Node {
                 if row >= max_row || col >= max_col {
                     continue;
                 }
-                minimum += grid.grid[row][col];
+                minimum += grid[row][col];
 
                 let neighbour = Node {
                     pos: (row, col),
                     direction: dir,
                     minimum,
                 };
-                let key = create_key(&neighbour);
-                let previous = *distance_map.get(&(key)).unwrap_or(&usize::MAX);
+                let previous = distance_map.get(row, col, dir);
 
                 if neighbour.minimum < previous {
-                    distance_map.insert(key, neighbour.minimum);
+                    distance_map.insert(row, col, dir, neighbour.minimum);
                     priority_q.push(Reverse(neighbour));
                 }
             }
@@ -166,6 +148,46 @@ impl Ord for Node {
 impl PartialOrd for Node {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
         Some(self.cmp(other))
+    }
+}
+
+struct FakeMap {
+    distances: Vec<Vec<[Option<usize>; 4]>>,
+}
+
+impl FakeMap {
+    fn new(height: usize, width: usize) -> FakeMap {
+        let mut distances = Vec::with_capacity(height);
+        for _ in 0..height {
+            let mut row = Vec::with_capacity(width);
+            for _ in 0..width {
+                row.push([None, None, None, None]);
+            }
+            distances.push(row);
+        }
+
+        FakeMap { distances }
+    }
+
+    fn get(&self, row: usize, col: usize, direction: Direction) -> usize {
+        let cell = self.distances[row][col];
+        match direction {
+            Direction::Up => cell[0].unwrap_or(usize::MAX),
+            Direction::Right => cell[1].unwrap_or(usize::MAX),
+            Direction::Down => cell[2].unwrap_or(usize::MAX),
+            Direction::Left => cell[3].unwrap_or(usize::MAX),
+        }
+    }
+
+    fn insert(&mut self, row: usize, col: usize, direction: Direction, value: usize) {
+        let cell = &mut self.distances[row][col];
+
+        match direction {
+            Direction::Up => cell[0] = Some(value),
+            Direction::Right => cell[1] = Some(value),
+            Direction::Down => cell[2] = Some(value),
+            Direction::Left => cell[3] = Some(value),
+        }
     }
 }
 
