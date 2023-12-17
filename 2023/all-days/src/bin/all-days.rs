@@ -261,7 +261,6 @@ fn main() -> Result<(), ()> {
     total_time_in_nanos += duration.as_nanos();
     println!();
 
-
     let total_duration = Duration::from_nanos(total_time_in_nanos as u64);
 
     println!("Total time: {total_duration:?}");

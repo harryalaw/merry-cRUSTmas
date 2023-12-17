@@ -6,9 +6,9 @@ pub fn process(input: &str) -> usize {
     let max_col = grid[0].len();
 
     let mut to_visit = Vec::<Laser>::with_capacity(1);
-    let pos = (0,0);
+    let pos = (0, 0);
     let dir = Direction::Right;
-    let laser = Laser { pos, dir};
+    let laser = Laser { pos, dir };
     let mirror = grid[0][0];
 
     reflect(laser, &mut to_visit, mirror);
