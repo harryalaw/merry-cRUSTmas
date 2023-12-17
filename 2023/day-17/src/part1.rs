@@ -1,7 +1,8 @@
 use std::{
     cmp::Reverse,
-    collections::{BinaryHeap, HashMap},
+    collections::BinaryHeap,
 };
+use hashbrown::HashMap;
 
 #[tracing::instrument]
 pub fn process(input: &str) -> usize {
