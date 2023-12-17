@@ -7,19 +7,17 @@ use std::{
 pub fn process(input: &str) -> usize {
     let grid = parse_grid(input);
 
-    let mut distance_map: HashMap<(usize, usize, Direction, usize), usize> = HashMap::new();
+    let mut distance_map: HashMap<(usize, usize, Direction), usize> = HashMap::new();
 
     let mut priority_q = BinaryHeap::new();
     let start_node_1 = Node {
         pos: (0, 0),
         direction: Direction::Right,
-        steps: 0,
         minimum: 0,
     };
     let start_node_2 = Node {
         pos: (0, 0),
         direction: Direction::Down,
-        steps: 0,
         minimum: 0,
     };
 
@@ -29,12 +27,12 @@ pub fn process(input: &str) -> usize {
     let target = (grid.grid.len() - 1, grid.grid[0].len() - 1);
 
     while let Some(Reverse(node)) = priority_q.pop() {
-        if node.pos == target && node.steps >= 4 {
+        if node.pos == target {
             return node.minimum;
         }
 
         let previous = *distance_map
-            .get(&(node.pos.0, node.pos.1, node.direction, node.steps))
+            .get(&(node.pos.0, node.pos.1, node.direction))
             .unwrap_or(&usize::MAX);
         if node.minimum > previous {
             continue;
@@ -48,16 +46,15 @@ pub fn process(input: &str) -> usize {
                     neighbour.pos.0,
                     neighbour.pos.1,
                     neighbour.direction,
-                    neighbour.steps,
                 ))
                 .unwrap_or(&usize::MAX);
+
             if neighbour.minimum < previous {
                 distance_map.insert(
                     (
                         neighbour.pos.0,
                         neighbour.pos.1,
                         neighbour.direction,
-                        neighbour.steps,
                     ),
                     neighbour.minimum,
                 );
@@ -115,12 +112,12 @@ impl Direction {
         }
     }
 
-    fn travel(&self, row: usize, col: usize) -> (usize, usize) {
+    fn travel(&self, row: usize, col: usize, steps: usize) -> (usize, usize) {
         match self {
-            Direction::Up => ((row as isize - 1) as usize, col),
-            Direction::Down => (row + 1, col),
-            Direction::Left => (row, (col as isize - 1) as usize),
-            Direction::Right => (row, col + 1),
+            Direction::Up => ((row as isize - steps as isize) as usize, col),
+            Direction::Down => (row + steps, col),
+            Direction::Left => (row, (col as isize - steps as isize) as usize),
+            Direction::Right => (row, col + steps),
         }
     }
 }
@@ -129,7 +126,6 @@ impl Direction {
 struct Node {
     pos: (usize, usize),
     direction: Direction,
-    steps: usize,
     minimum: usize,
 }
 
@@ -144,30 +140,27 @@ impl Node {
         let mut neighbours = Vec::new();
 
         for dir in Direction::iter() {
-            if dir == self.direction.inverse() || dir != self.direction && self.steps < 4 {
+            if dir == self.direction || dir == self.direction.inverse() {
                 continue;
             }
-            let steps = if dir == self.direction {
-                self.steps + 1
-            } else {
-                1
-            };
-            if steps > 10 {
-                continue;
-            }
-            let (row, col) = dir.travel(row, col);
+            let mut minimum = self.minimum;
+            for steps in 1..=10 {
+                let (row, col) = dir.travel(row, col, steps);
 
-            if row >= max_row || col >= max_col {
-                continue;
-            }
+                if row >= max_row || col >= max_col {
+                    continue;
+                }
+                minimum += grid.grid[row][col];
+                if steps < 4 {
+                    continue;
+                }
 
-            let minimum = self.minimum + grid.grid[row][col];
-            neighbours.push(Node {
-                pos: (row, col),
-                steps,
-                direction: dir,
-                minimum,
-            });
+                neighbours.push(Node {
+                    pos: (row, col),
+                    direction: dir,
+                    minimum,
+                });
+            }
         }
         neighbours
     }
@@ -175,12 +168,7 @@ impl Node {
 
 impl Ord for Node {
     fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        let compare = &self.minimum.cmp(&other.minimum);
-
-        match compare {
-            std::cmp::Ordering::Equal => self.steps.cmp(&other.steps),
-            _ => *compare,
-        }
+       self.minimum.cmp(&other.minimum)
     }
 }
 
