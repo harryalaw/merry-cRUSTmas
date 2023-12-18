@@ -5,5 +5,8 @@ fn main() -> Result<(), ()> {
     let file = include_str!("../../input.txt");
     let result = process(file);
     println!("{}", result);
+
+    let result = day_10::part1_no_map::process(file);
+    println!("{}", result);
     Ok(())
 }

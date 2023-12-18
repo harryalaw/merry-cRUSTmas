@@ -144,13 +144,13 @@ fn main() -> Result<(), ()> {
     // day 10
     let file = include_str!("../../../day-10/input.txt");
     let now = Instant::now();
-    let _result = day_10::part1::process(file);
+    let _result = day_10::part1_no_map::process(file);
     let duration = now.elapsed();
     println!("Day 10 Part1: {duration:?}");
     total_time_in_nanos += duration.as_nanos();
 
     let now = Instant::now();
-    let _result = day_10::part2::process(file);
+    let _result = day_10::part2_no_map::process(file);
     let duration = now.elapsed();
     println!("Day 10 Part2: {duration:?}");
     total_time_in_nanos += duration.as_nanos();
