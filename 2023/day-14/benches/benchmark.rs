@@ -19,3 +19,8 @@ fn part2() {
 fn part2_mut() {
     part2_mut::process(divan::black_box(include_str!("../input.txt",)));
 }
+
+#[divan::bench]
+fn part2_hash() {
+    part2_hash::process(divan::black_box(include_str!("../input.txt",)));
+}

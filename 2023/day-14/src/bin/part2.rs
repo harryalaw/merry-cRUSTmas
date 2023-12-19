@@ -8,5 +8,8 @@ fn main() -> Result<(), ()> {
 
     let result = part2_mut::process(file);
     println!("{}", result);
+
+    let result = part2_hash::process(file);
+    println!("{}", result);
     Ok(())
 }
