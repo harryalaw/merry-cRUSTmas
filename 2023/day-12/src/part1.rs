@@ -1,10 +1,20 @@
 use rayon::prelude::*;
 
 #[tracing::instrument]
-pub fn process(_input: &str) -> usize {
-    let mut records = parse_input(_input);
+pub fn process(input: &str) -> usize {
+    let lines:Vec<&str> = input.lines().collect();
+    lines.into_par_iter()
+        .flat_map(|line| line.split_once(' '))
+        .map(|(chars, numbers)| {
+            let springs = chars.chars().collect();
+            let damaged = numbers
+                .split(',')
+                .map(|x| x.parse().expect("It's a number"))
+                .collect();
 
-    records.par_iter_mut().map(|record| record.check()).sum()
+            Record::new(springs, damaged).check()
+        })
+        .sum()
 }
 
 struct Record {
@@ -93,22 +103,6 @@ impl Record {
         }
         total
     }
-}
-
-fn parse_input(input: &str) -> Vec<Record> {
-    input
-        .lines()
-        .flat_map(|line| line.split_once(' '))
-        .map(|(chars, numbers)| {
-            let springs = chars.chars().collect();
-            let damaged = numbers
-                .split(',')
-                .map(|x| x.parse().expect("It's a number"))
-                .collect();
-
-            Record::new(springs, damaged)
-        })
-        .collect()
 }
 
 #[cfg(test)]

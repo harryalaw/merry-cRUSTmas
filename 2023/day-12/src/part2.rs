@@ -2,10 +2,20 @@ use hashbrown::HashMap;
 use rayon::prelude::*;
 
 #[tracing::instrument]
-pub fn process(_input: &str) -> usize {
-    let records = parse_input(_input);
+pub fn process(input: &str) -> usize {
+    let lines: Vec<&str> = input.lines().collect();
+    lines
+        .into_par_iter()
+        .flat_map(|line| line.split_once(' '))
+        .map(|(chars, numbers)| {
+            let springs = repeat_five(chars, '?').chars().collect();
+            let damaged = repeat_five(numbers, ',')
+                .split(',')
+                .map(|x| x.parse().expect("It's a number"))
+                .collect();
 
-    records.par_iter().map(|record| record.check()).sum()
+            Record::new(springs, damaged).check()
+        }).sum()
 }
 
 struct Record {
@@ -102,23 +112,6 @@ impl Record {
         cache.insert((spring_idx, damaged_idx, seen), total);
         total
     }
-}
-
-fn parse_input(input: &str) -> Vec<Record> {
-    let lines: Vec<&str> = input.lines().collect();
-    lines
-        .into_par_iter()
-        .flat_map(|line| line.split_once(' '))
-        .map(|(chars, numbers)| {
-            let springs = repeat_five(chars, '?').chars().collect();
-            let damaged = repeat_five(numbers, ',')
-                .split(',')
-                .map(|x| x.parse().expect("It's a number"))
-                .collect();
-
-            Record::new(springs, damaged)
-        })
-        .collect()
 }
 
 fn repeat_five(input: &str, joining_char: char) -> String {
