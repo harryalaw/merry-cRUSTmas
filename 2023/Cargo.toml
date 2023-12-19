@@ -9,6 +9,7 @@ tracing = "0.1.40"
 divan = "0.1.4"
 rayon = "1.8"
 rstest = "0.18.2"
+hashbrown = "0.14"
 
 [profile.flamegraph]
 inherits = "dev"

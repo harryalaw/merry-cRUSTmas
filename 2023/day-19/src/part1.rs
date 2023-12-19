@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use hashbrown::HashMap;
 
 #[tracing::instrument]
 pub fn process(input: &str) -> usize {
@@ -6,7 +6,7 @@ pub fn process(input: &str) -> usize {
 
     parts
         .iter()
-        .flat_map(|part| {
+        .fold(0, |acc, part| {
             let mut workflow_id = "in";
             while workflow_id != "R" && workflow_id != "A" {
                 let workflow = workflows.get(&workflow_id).expect("It's there");
@@ -24,13 +24,11 @@ pub fn process(input: &str) -> usize {
             }
 
             if workflow_id == "A" {
-                Some(part)
+                acc + part.x + part.m + part.a + part.s
             } else {
-                None
+                acc
             }
         })
-        .map(|part| part.x + part.m + part.a + part.s)
-        .sum()
 }
 
 fn parse_input(input: &str) -> (HashMap<&str, Workflow>, Vec<Part>) {
