@@ -1,17 +1,16 @@
-use rayon::prelude::*;
 use hashbrown::HashMap;
+use rayon::prelude::*;
 
 #[tracing::instrument]
 pub fn process(_input: &str) -> usize {
-    let mut records = parse_input(_input);
+    let records = parse_input(_input);
 
-    records.par_iter_mut().map(|record| record.check()).sum()
+    records.par_iter().map(|record| record.check()).sum()
 }
 
 struct Record {
     springs: Vec<char>,
     damaged: Vec<u8>,
-    cache: HashMap<(u8, u8, u8), usize>,
     spring_len: u8,
     damaged_len: u8,
 }
@@ -20,29 +19,28 @@ impl Record {
     fn new(springs: Vec<char>, damaged: Vec<u8>) -> Record {
         let spring_len = springs.len() as u8;
         let damaged_len = damaged.len() as u8;
-        let cache = HashMap::new();
 
         Record {
             springs,
             damaged,
-            cache,
             spring_len,
             damaged_len,
         }
     }
 
-    fn check(&mut self) -> usize {
+    fn check(&self) -> usize {
         let remaining = self.damaged.iter().sum();
-        self.count(0, 0, 0, remaining)
+        let mut cache: HashMap<(u8, u8, u8), usize> = HashMap::new();
+        self.count(0, 0, 0, remaining, &mut cache)
     }
 
-    fn count(&mut self, spring_idx: u8, damaged_idx: u8, seen: u8, remaining: u8) -> usize {
+    fn count(&self, spring_idx: u8, damaged_idx: u8, seen: u8, remaining: u8, cache: &mut HashMap<(u8,u8,u8), usize>) -> usize {
         // not enough space for the rest
         if self.spring_len - spring_idx + seen < remaining {
             return 0;
         }
 
-        if let Some(prev) = self.cache.get(&(spring_idx, damaged_idx, seen)) {
+        if let Some(prev) = cache.get(&(spring_idx, damaged_idx, seen)) {
             return *prev;
         }
 
@@ -60,7 +58,7 @@ impl Record {
         match self.springs[spring_idx as usize] {
             '.' => {
                 if seen == 0 {
-                    total += self.count(spring_idx + 1, damaged_idx, 0, remaining);
+                    total += self.count(spring_idx + 1, damaged_idx, 0, remaining, cache);
                 } else if damaged_idx < self.damaged_len
                     && seen == self.damaged[damaged_idx as usize]
                 {
@@ -69,23 +67,24 @@ impl Record {
                         damaged_idx + 1,
                         0,
                         remaining - self.damaged[damaged_idx as usize],
+                        cache,
                     );
                 };
             }
             '#' => {
                 if damaged_idx < self.damaged_len && seen < self.damaged[damaged_idx as usize] {
-                    total += self.count(spring_idx + 1, damaged_idx, seen + 1, remaining);
+                    total += self.count(spring_idx + 1, damaged_idx, seen + 1, remaining, cache);
                 }
             }
             '?' => {
                 // treat as damaged
                 if damaged_idx < self.damaged_len && seen < self.damaged[damaged_idx as usize] {
-                    total += self.count(spring_idx + 1, damaged_idx, seen + 1, remaining);
+                    total += self.count(spring_idx + 1, damaged_idx, seen + 1, remaining, cache);
                 }
 
                 // treat as operational
                 if seen == 0 {
-                    total += self.count(spring_idx + 1, damaged_idx, 0, remaining);
+                    total += self.count(spring_idx + 1, damaged_idx, 0, remaining, cache);
                 } else if damaged_idx < self.damaged_len
                     && seen == self.damaged[damaged_idx as usize]
                 {
@@ -94,12 +93,13 @@ impl Record {
                         damaged_idx + 1,
                         0,
                         remaining - self.damaged[damaged_idx as usize],
+                        cache
                     );
                 };
             }
             _ => panic!("Invalid char {}", self.springs[spring_idx as usize]),
         }
-        self.cache.insert((spring_idx, damaged_idx, seen), total);
+        cache.insert((spring_idx, damaged_idx, seen), total);
         total
     }
 }
