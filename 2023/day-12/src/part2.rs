@@ -105,8 +105,9 @@ impl Record {
 }
 
 fn parse_input(input: &str) -> Vec<Record> {
-    input
-        .lines()
+    let lines: Vec<&str> = input.lines().collect();
+    lines
+        .into_par_iter()
         .flat_map(|line| line.split_once(' '))
         .map(|(chars, numbers)| {
             let springs = repeat_five(chars, '?').chars().collect();
