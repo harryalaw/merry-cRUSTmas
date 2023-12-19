@@ -1,29 +1,18 @@
-use std::collections::HashMap;
-
 #[tracing::instrument]
 pub fn process(input: &str) -> usize {
-    let mut counts: HashMap<usize, usize> = HashMap::new();
-
     let lines = input.lines().collect::<Vec<&str>>();
-    for i in 0..lines.len() {
-        counts.insert(i + 1, 1);
-    }
+    let mut counts: Vec<usize> = lines.iter().enumerate().map(|_| 1).collect();
 
     for i in 0..lines.len() {
         let winners = parse_card(lines.get(i).expect("We can index this"));
-        let mut new_map: HashMap<usize, usize> = counts.clone();
+        let previous_count = counts[i];
 
-        let previous_count = counts.get(&(i + 1)).unwrap_or(&1);
-
-        for j in i + 2..i + winners + 2 {
-            let previous_amount = counts.get(&j).unwrap_or(&1);
-            new_map.insert(j, previous_amount + previous_count);
+        for j in 1..=winners {
+            counts[i + j] += previous_count
         }
-
-        counts = new_map
     }
 
-    counts.into_iter().fold(0, |acc, (_key, val)| acc + val)
+    counts.iter().sum()
 }
 
 fn parse_card(card: &str) -> usize {

@@ -87,10 +87,13 @@ enum Comparison {
 */
 fn compare(a: u64, b: u64) -> Comparison {
     let xor = a ^ b;
-    match (a == b, xor & (xor - 1) == 0) {
-        (true, _) => Comparison::Equal,
-        (false, true) => Comparison::OneDiff,
-        (false, false) => Comparison::ManyDiffs,
+    if a == b {
+        Comparison::Equal
+    } else {
+        match xor & (xor - 1) == 0 {
+            true => Comparison::OneDiff,
+            false => Comparison::ManyDiffs,
+        }
     }
 }
 

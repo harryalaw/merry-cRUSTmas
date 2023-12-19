@@ -7,6 +7,7 @@ edition = "2021"
 [dependencies]
 tracing = { workspace = true }
 rayon = { workspace = true }
+hashbrown = { workspace = true }
 
 [dev-dependencies]
 divan = { workspace = true }

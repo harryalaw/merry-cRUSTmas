@@ -1,5 +1,5 @@
 use crate::schematic::{Number, Schematic};
-use std::collections::HashMap;
+use hashbrown::HashMap;
 
 #[tracing::instrument]
 pub fn process(input: &str) -> u32 {

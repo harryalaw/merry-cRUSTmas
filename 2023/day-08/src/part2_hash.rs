@@ -1,5 +1,6 @@
 use rayon::prelude::*;
-use std::{collections::HashMap, hash::Hash};
+use hashbrown::HashMap;
+use std::hash::Hash;
 
 #[tracing::instrument]
 pub fn process(input: &str) -> usize {

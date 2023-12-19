@@ -166,6 +166,7 @@ name = "day-03"
 version = "0.1.0"
 dependencies = [
  "divan",
+ "hashbrown",
  "tracing",
 ]
 
@@ -207,6 +208,7 @@ name = "day-08"
 version = "0.1.0"
 dependencies = [
  "divan",
+ "hashbrown",
  "rayon",
  "tracing",
 ]
@@ -242,6 +244,7 @@ name = "day-12"
 version = "0.1.0"
 dependencies = [
  "divan",
+ "hashbrown",
  "rayon",
  "tracing",
 ]

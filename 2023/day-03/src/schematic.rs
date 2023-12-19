@@ -1,5 +1,6 @@
 use crate::part2::hash_coord;
-use std::{collections::HashMap, str::FromStr};
+use std::str::FromStr;
+use hashbrown::HashMap;
 
 #[derive(Debug)]
 pub struct Schematic {
