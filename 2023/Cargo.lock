@@ -46,6 +46,7 @@ dependencies = [
  "day-17",
  "day-18",
  "day-19",
+ "day-20",
  "divan",
  "tracing",
 ]
@@ -304,6 +305,15 @@ dependencies = [
 
 [[package]]
 name = "day-19"
+version = "0.1.0"
+dependencies = [
+ "divan",
+ "hashbrown",
+ "tracing",
+]
+
+[[package]]
+name = "day-20"
 version = "0.1.0"
 dependencies = [
  "divan",
