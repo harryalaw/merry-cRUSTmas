@@ -1,2 +1,2 @@
 # merry-cRUSTmas
-Some poorly written rust advent of code solutions
+Learning and optimising rust through advent of code problems.
