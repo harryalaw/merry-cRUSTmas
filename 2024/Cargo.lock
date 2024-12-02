@@ -19,6 +19,7 @@ name = "all-days"
 version = "0.1.0"
 dependencies = [
  "day-01",
+ "day-02",
  "divan",
  "tracing",
 ]

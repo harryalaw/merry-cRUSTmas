@@ -8,14 +8,9 @@ pub fn process(_input: &str) -> usize {
                 .filter_map(|x| x.parse::<usize>().ok())
                 .collect();
 
-            if is_safe(&values) {
+            if is_safe(&values) || is_safe_subset(&values) {
                 1
             } else {
-                for i in 0..values.len() {
-                    if is_safe(&[&values[0..i], &values[i + 1..]].concat()) {
-                        return 1;
-                    }
-                }
                 0
             }
         })
@@ -39,6 +34,36 @@ fn is_safe(list: &[usize]) -> bool {
     }
 
     return descending ^ ascending;
+}
+
+fn is_safe_subset(values: &[usize]) -> bool {
+    (0..values.len()).any(|i| {
+        let mut ascending = true;
+        let mut descending = true;
+        let mut last_valid = None;
+
+        for (j, &value) in values.iter().enumerate() {
+            if j == i {
+                continue;
+            }
+
+            if let Some(last) = last_valid {
+                if value < last {
+                    descending = false;
+                } else if value > last {
+                    ascending = false;
+                }
+
+                if value.abs_diff(last) > 3 || value == last {
+                    return false;
+                }
+            }
+
+            last_valid = Some(value);
+        }
+
+        descending ^ ascending
+    })
 }
 
 #[cfg(test)]

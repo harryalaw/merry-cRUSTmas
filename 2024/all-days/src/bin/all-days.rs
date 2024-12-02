@@ -21,21 +21,21 @@ fn main() -> Result<(), ()> {
     total_time_in_nanos += duration.as_nanos();
     println!();
 
-    //// day 2
-    //let file = include_str!("../../../day-02/input.txt");
-    //let now = Instant::now();
-    //let _result = day_02::part1::process(file);
-    //let duration = now.elapsed();
-    //println!("Day 02 Part1: {duration:?}");
-    //total_time_in_nanos += duration.as_nanos();
-    //
-    //let now = Instant::now();
-    //let _result = day_02::part2::process(file);
-    //let duration = now.elapsed();
-    //println!("Day 02 Part2: {duration:?}");
-    //total_time_in_nanos += duration.as_nanos();
-    //println!();
-    //
+    // day 2
+    let file = include_str!("../../../day-02/input.txt");
+    let now = Instant::now();
+    let _result = day_02::part1::process(file);
+    let duration = now.elapsed();
+    println!("Day 02 Part1: {duration:?}");
+    total_time_in_nanos += duration.as_nanos();
+
+    let now = Instant::now();
+    let _result = day_02::part2::process(file);
+    let duration = now.elapsed();
+    println!("Day 02 Part2: {duration:?}");
+    total_time_in_nanos += duration.as_nanos();
+    println!();
+
     //// day 3
     //let file = include_str!("../../../day-03/input.txt");
     //let now = Instant::now();

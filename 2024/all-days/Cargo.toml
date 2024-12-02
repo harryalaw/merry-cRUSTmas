@@ -7,7 +7,7 @@ edition = "2021"
 [dependencies]
 tracing = { workspace = true }
 day-01 = { path = "../day-01" }
-# day-02 = { path = "../day-02" }
+day-02 = { path = "../day-02" }
 # day-03 = { path = "../day-03" }
 # day-04 = { path = "../day-04" }
 # day-05 = { path = "../day-05" }
