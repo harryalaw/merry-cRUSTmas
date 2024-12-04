@@ -36,36 +36,36 @@ fn main() -> Result<(), ()> {
     total_time_in_nanos += duration.as_nanos();
     println!();
 
-    //// day 3
-    //let file = include_str!("../../../day-03/input.txt");
-    //let now = Instant::now();
-    //let _result = day_03::part1::process(file);
-    //let duration = now.elapsed();
-    //println!("Day 03 Part1: {duration:?}");
-    //total_time_in_nanos += duration.as_nanos();
-    //
-    //let now = Instant::now();
-    //let _result = day_03::part2::process(file);
-    //let duration = now.elapsed();
-    //println!("Day 03 Part2: {duration:?}");
-    //total_time_in_nanos += duration.as_nanos();
-    //println!();
-    //
-    //// day 4
-    //let file = include_str!("../../../day-04/input.txt");
-    //let now = Instant::now();
-    //let _result = day_04::part1::process(file);
-    //let duration = now.elapsed();
-    //println!("Day 04 Part1: {duration:?}");
-    //total_time_in_nanos += duration.as_nanos();
-    //
-    //let now = Instant::now();
-    //let _result = day_04::part2::process(file);
-    //let duration = now.elapsed();
-    //println!("Day 04 Part2: {duration:?}");
-    //total_time_in_nanos += duration.as_nanos();
-    //println!();
-    //
+    // day 3
+    let file = include_str!("../../../day-03/input.txt");
+    let now = Instant::now();
+    let _result = day_03::part1::process(file);
+    let duration = now.elapsed();
+    println!("Day 03 Part1: {duration:?}");
+    total_time_in_nanos += duration.as_nanos();
+
+    let now = Instant::now();
+    let _result = day_03::part2::process(file);
+    let duration = now.elapsed();
+    println!("Day 03 Part2: {duration:?}");
+    total_time_in_nanos += duration.as_nanos();
+    println!();
+
+    // day 4
+    let file = include_str!("../../../day-04/input.txt");
+    let now = Instant::now();
+    let _result = day_04::part1::process(file);
+    let duration = now.elapsed();
+    println!("Day 04 Part1: {duration:?}");
+    total_time_in_nanos += duration.as_nanos();
+
+    let now = Instant::now();
+    let _result = day_04::part2::process(file);
+    let duration = now.elapsed();
+    println!("Day 04 Part2: {duration:?}");
+    total_time_in_nanos += duration.as_nanos();
+    println!();
+
     //// day 5
     //let file = include_str!("../../../day-05/input.txt");
     //let now = Instant::now();
